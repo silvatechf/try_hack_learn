@@ -1,0 +1,12 @@
+{
+  "arena.title": "SENTINEL FORGE",
+  "arena.subtitle": "Laboratorio Interactivo de Ingeniería de Seguridad",
+  "stack.title": "PILA DE ARQUITECTURA DEFENSIVA",
+  "stack.empty": "Arquitectura vacía. Arrastre controles aquí.",
+  "metrics.latency": "Latencia Acumulada",
+  "metrics.budget": "Máximo Permitido",
+  "status.validated": "MISIÓN VALIDADA",
+  "status.violation": "VIOLACIÓN DE TRADE-OFF ARQUITECTURAL",
+  "btn.deploy": "Ejecutar Validación en Sandbox",
+  "btn.clear": "Limpiar Pila"
+}

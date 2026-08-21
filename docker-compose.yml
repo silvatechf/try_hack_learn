@@ -1,0 +1,51 @@
+﻿version: '3.8'
+
+services:
+  target_api:
+    build: ./target_api
+    ports:
+      - "8001:8000"
+    networks:
+      - sentinel-net
+
+  orchestrator:
+    build: ./orchestrator
+    ports:
+      - "8000:8000"
+    environment:
+      - TARGET_URL=http://target_api:8000
+      - SAFETY_API_KEY=
+    volumes:
+      - ./target_api:/app/target_api:ro
+    networks:
+      - sentinel-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - sentinel-net
+
+  python_lab:
+    build: ./python_lab
+    ports:
+      - "8002:8002"
+    networks:
+      - sentinel-net
+      - python-lab-net
+
+  python_lab_executor:
+    build: ./python_lab_executor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - python-lab-net
+
+networks:
+  sentinel-net:
+    driver: bridge
+  python-lab-net:
+    driver: bridge

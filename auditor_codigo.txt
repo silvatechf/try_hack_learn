@@ -1,0 +1,37 @@
+$exclude = '\\(node_modules|\.git|\.venv|venv|__pycache__|dist|build|target|\.idea|\.vscode|coverage|\.pytest_cache)\\'
+$extensions = @('.py','.java','.kt','.ts','.tsx','.js','.jsx','.json','.yaml','.yml','.toml','.xml','.sql','.md','.txt','.env','.properties','.conf','.sh','.ps1','.html','.css','.scss')
+
+"PROJECT ANALYSIS DUMP" | Set-Content PROJECT_DUMP.txt
+"Generated: $(Get-Date)" | Add-Content PROJECT_DUMP.txt
+"Root: $(Get-Location)" | Add-Content PROJECT_DUMP.txt
+"`n" | Add-Content PROJECT_DUMP.txt
+
+Get-ChildItem -Recurse -File |
+Where-Object {
+    $_.FullName -notmatch $exclude -and
+    $_.Extension -in $extensions -and
+    $_.Name -notin @('PROJECT_DUMP.txt')
+} |
+Sort-Object FullName |
+ForEach-Object {
+    "`n============================================================" | Add-Content PROJECT_DUMP.txt
+    "FILE: $($_.FullName)" | Add-Content PROJECT_DUMP.txt
+    "SIZE: $($_.Length) bytes" | Add-Content PROJECT_DUMP.txt
+    "============================================================" | Add-Content PROJECT_DUMP.txt
+
+    try {
+        Get-Content $_.FullName -Raw -ErrorAction Stop |
+            Add-Content PROJECT_DUMP.txt
+    }
+    catch {
+        "[ERROR READING FILE: $($_.FullName)]" | Add-Content PROJECT_DUMP.txt
+    }
+}
+
+Write-Host ""
+Write-Host "========================================"
+Write-Host " PROJECT_DUMP.txt CREATED"
+Write-Host "========================================"
+Write-Host ""
+Write-Host "Files included:" (Get-Content PROJECT_DUMP.txt | Select-String "^FILE:" | Measure-Object).Count
+Write-Host "Output: $(Resolve-Path PROJECT_DUMP.txt)"

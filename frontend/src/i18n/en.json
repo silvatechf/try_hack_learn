@@ -1,0 +1,12 @@
+{
+  "arena.title": "SENTINEL FORGE",
+  "arena.subtitle": "Interactive Security Engineering Laboratory",
+  "stack.title": "DEFENSIVE ARCHITECTURE STACK",
+  "stack.empty": "Architecture empty. Drag controls here.",
+  "metrics.latency": "Cumulative Latency",
+  "metrics.budget": "Max Allowed",
+  "status.validated": "MISSION VALIDATED",
+  "status.violation": "ARCHITECTURAL TRADE-OFF VIOLATION",
+  "btn.deploy": "Execute Sandbox Validation",
+  "btn.clear": "Clear Stack"
+}
