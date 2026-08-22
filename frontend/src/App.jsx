@@ -4,6 +4,7 @@ import MissionBrief from './components/MissionBrief';
 import MissionDebrief from './components/MissionDebrief';
 import ControlInspector from './components/ControlInspector';
 import { useI18n } from './i18n/i18nContext';
+import PythonLab from './components/PythonLab';
 
 export default function App() {
   const { t, lang, toggleLang } = useI18n();
@@ -45,8 +46,8 @@ export default function App() {
   const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/missions/list').then(r => r.json()).then(setMissions).catch(() => {});
-    fetch('http://localhost:8000/api/v1/controls/list').then(r => r.json()).then(setAvailableControls).catch(() => {});
+    fetch('http://localhost:8000/api/v1/missions/list').then(r => r.json()).then(setMissions).catch(() => { });
+    fetch('http://localhost:8000/api/v1/controls/list').then(r => r.json()).then(setAvailableControls).catch(() => { });
   }, []);
 
   const handleDropToStack = (e) => {
@@ -70,9 +71,9 @@ export default function App() {
       const res = await fetch('http://localhost:8000/api/v1/arena/deploy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          mission_id: selectedMission.mission_id, 
-          control_ids: controlStack.map(c => c.control_id) 
+        body: JSON.stringify({
+          mission_id: selectedMission.mission_id,
+          control_ids: controlStack.map(c => c.control_id)
         })
       });
       const data = await res.json();
@@ -121,7 +122,7 @@ export default function App() {
 
   const currentLatency = controlStack.reduce((sum, c) => sum + (c.tradeoffs?.latency_ms || 0), 0);
   const latencyBudget = selectedMission?.constraints?.max_control_overhead_ms || selectedMission?.constraints?.max_latency_ms || 50;
-  
+
   const missionControls = (selectedMission?.available_controls && selectedMission.available_controls.length > 0)
     ? availableControls.filter(c => selectedMission.available_controls.includes(c.control_id))
     : availableControls;
@@ -135,15 +136,25 @@ export default function App() {
         </div>
         <div className="flex gap-2">
           <button onClick={toggleLang} className="px-3 py-1 bg-slate-900 border border-slate-700 rounded text-xs hover:border-cyan-500 transition-all">{lang.toUpperCase()}</button>
-          {view !== 'HOME' && <button onClick={() => {setView('HOME'); setControlStack([]);}} className="px-3 py-1 bg-slate-800 rounded text-xs hover:bg-slate-700 transition-all">Back</button>}
+          {view !== 'HOME' && <button onClick={() => { setView('HOME'); setControlStack([]); }} className="px-3 py-1 bg-slate-800 rounded text-xs hover:bg-slate-700 transition-all">Back</button>}
         </div>
+        {view === 'HOME' && (
+          <button
+            onClick={() => setView('LAB')}
+            style={{ marginRight: '15px', cursor: 'pointer' }}
+          >
+            {t('nav_python_lab', 'Python Lab')}
+          </button>
+        )}
       </header>
 
       <main className="flex-grow">
-        {view === 'HOME' && <LearningMap missions={missions} onSelect={(m) => {setSelectedMission(m); setView('BRIEF');}} progress={learningProgress} />}
+        {view === 'HOME' && <LearningMap missions={missions} onSelect={(m) => { setSelectedMission(m); setView('BRIEF'); }} progress={learningProgress} />}
         {view === 'BRIEF' && <MissionBrief mission={selectedMission} onStart={() => setView('ARENA')} />}
-        {view === 'DEBRIEF' && <MissionDebrief result={result} mission={selectedMission} onRetry={() => {setControlStack([]); setView('ARENA');}} onBack={() => setView('HOME')} />}
-        
+        {view === 'DEBRIEF' && <MissionDebrief result={result} mission={selectedMission} onRetry={() => { setControlStack([]); setView('ARENA'); }} onBack={() => setView('HOME')} />}
+        {view === 'LAB' && (
+  <PythonLab onBack={() => setView('HOME')} />
+)}
         {view === 'ARENA' && selectedMission && (
           <div className="grid grid-cols-12 gap-6 pb-20 animate-fadeIn">
             <div className="col-span-4 bg-[#0f1722] p-4 rounded-xl border border-slate-800 h-[650px] flex flex-col">
@@ -176,8 +187,8 @@ export default function App() {
                 </div>
               </div>
 
-              <div 
-                onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }} 
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={handleDropToStack}
                 className={`flex-grow border-2 border-dashed rounded-xl flex flex-col items-center py-6 overflow-y-auto transition-all duration-200 ${isDragOver ? 'bg-cyan-950/20 border-cyan-500 shadow-[inset_0_0_50px_rgba(34,211,238,0.1)]' : 'bg-[#0f1722] border-slate-700'}`}
@@ -185,7 +196,7 @@ export default function App() {
                 <div className="w-64 text-center border-b border-slate-600 pb-2 mb-2 text-xs font-mono text-cyan-500 tracking-widest uppercase flex items-center justify-center gap-2">
                   <span>☁️</span> INTERNET
                 </div>
-                
+
                 {controlStack.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full opacity-50 pointer-events-none">
                     <span className="text-4xl mb-3">🖱️</span>

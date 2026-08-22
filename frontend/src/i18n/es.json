@@ -8,5 +8,16 @@
   "status.validated": "MISIÓN VALIDADA",
   "status.violation": "VIOLACIÓN DE TRADE-OFF ARQUITECTURAL",
   "btn.deploy": "Ejecutar Validación en Sandbox",
-  "btn.clear": "Limpiar Pila"
+  "btn.clear": "Limpiar Pila",
+  
+  "nav_python_lab": "Laboratorio Python",
+  "lab_title": "Laboratorio de Seguridad Python",
+  "lab_difficulty": "Dificultad",
+  "lab_objectives": "Objetivos de Aprendizaje",
+  "lab_run_code": "Ejecutar Código",
+  "lab_results": "Resultados de Ejecución",
+  "lab_passed_all": "¡Todos los tests pasaron!",
+  "lab_failed": "Algunos tests fallaron o encontraron errores.",
+  "lab_back": "Volver al Mapa"
+
 }

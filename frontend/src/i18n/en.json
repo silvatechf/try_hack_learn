@@ -8,5 +8,14 @@
   "status.validated": "MISSION VALIDATED",
   "status.violation": "ARCHITECTURAL TRADE-OFF VIOLATION",
   "btn.deploy": "Execute Sandbox Validation",
-  "btn.clear": "Clear Stack"
+  "btn.clear": "Clear Stack",
+  "nav_python_lab": "Python Lab",
+  "lab_title": "Python Security Lab",
+  "lab_difficulty": "Difficulty",
+  "lab_objectives": "Learning Objectives",
+  "lab_run_code": "Run Code",
+  "lab_results": "Execution Results",
+  "lab_passed_all": "All tests passed!",
+  "lab_failed": "Some tests failed or encountered errors.",
+  "lab_back": "Back to Map"
 }
