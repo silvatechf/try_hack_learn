@@ -68,7 +68,28 @@
     "test_passed": "Pasó",
     "test_failed": "Falló",
     "test_expected": "Esperado",
-    "test_received": "Recibido"
+    "test_received": "Recibido",
+    "pedagogical_result": "Resultado Pedagógico",
+    "outcome": "Resultado",
+    "feedback": "Retroalimentación",
+    "next_step_result": "Siguiente Paso",
+    "concepts": "Conceptos",
+    "score": "Puntuación",
+    "mastered": "Dominado",
+    "practice": "Práctica",
+    "needs_review": "Revisar",
+    "blocked": "Bloqueado",
+    "feedback_mastered": "Excelente. Todas las pruebas pasaron. Demostraste el concepto esperado.",
+    "feedback_partial": "La solución funciona parcialmente. Revisa los casos fallidos y mejora tu implementación.",
+    "feedback_failed": "La solución necesita revisión. Repasa los conceptos del ejercicio e inténtalo de nuevo.",
+    "feedback_syntax_error": "El código contiene un error de sintaxis. Revisa el error indicado y corrige la sintaxis.",
+    "feedback_timeout": "La ejecución fue bloqueada porque superó el límite de tiempo. Revisa el bucle y su condición de terminación.",
+    "next_step_mastered": "Continúa con el siguiente ejercicio.",
+    "next_step_partial": "Revisa las pruebas fallidas y mejora la solución.",
+    "next_step_failed": "Repasa los conceptos del ejercicio e inténtalo de nuevo.",
+    "next_step_syntax_error": "Corrige el error de sintaxis y ejecuta el ejercicio nuevamente.",
+    "next_step_timeout": "Revisa el bucle y asegúrate de que la ejecución termine.",
+    "score_separator": "de"
   },
   "missions": {
     "mission_001": {
@@ -277,4 +298,3 @@
     }
   }
 }
-

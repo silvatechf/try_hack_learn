@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 from exercises_registry import list_exercises, get_exercise
+from pedagogical_evaluator import evaluate_pedagogy
 
 app = FastAPI(title="SentinelForge Python Lab API")
 app.add_middleware(
@@ -39,6 +40,16 @@ async def api_execute_exercise(payload: ExecutionPayload):
                 },
                 timeout=10.0
             )
-            return response.json()
+            execution_result = response.json()
+            pedagogical_result = evaluate_pedagogy(
+                exercise,
+                execution_result,
+            )
+
+            return {
+                **execution_result,
+                "exercise_id": payload.exercise_id,
+                "pedagogical_result": pedagogical_result,
+            }
         except httpx.RequestError as exc:
             raise HTTPException(status_code=503, detail=f"Executor communication failed: {exc}")
