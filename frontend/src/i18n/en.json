@@ -1,14 +1,32 @@
-{
-  "arena.title": "SENTINEL FORGE",
-  "arena.subtitle": "Interactive Security Engineering Laboratory",
-  "stack.title": "DEFENSIVE ARCHITECTURE STACK",
-  "stack.empty": "Architecture empty. Drag controls here.",
-  "metrics.latency": "Cumulative Latency",
-  "metrics.budget": "Max Allowed",
-  "status.validated": "MISSION VALIDATED",
-  "status.violation": "ARCHITECTURAL TRADE-OFF VIOLATION",
-  "btn.deploy": "Execute Sandbox Validation",
-  "btn.clear": "Clear Stack",
+﻿{
+  "arena": {
+    "title": "SENTINEL FORGE",
+    "subtitle": "Interactive Security Engineering Laboratory",
+    "available_controls": "Available Controls",
+    "inspect": "Inspect",
+    "impact": "Impact",
+    "internet": "INTERNET",
+    "app_target": "APP TARGET",
+    "drag_modules": "Drag modules here",
+    "drag_help": "to build your defense pipeline",
+    "compiling": "Compiling Architecture..."
+  },
+  "stack": {
+    "title": "DEFENSIVE ARCHITECTURE STACK",
+    "empty": "Architecture empty. Drag controls here."
+  },
+  "metrics": {
+    "latency": "Cumulative Latency",
+    "budget": "Max Allowed"
+  },
+  "status": {
+    "validated": "MISSION VALIDATED",
+    "violation": "ARCHITECTURAL TRADE-OFF VIOLATION"
+  },
+  "btn": {
+    "deploy": "Execute Sandbox Validation",
+    "clear": "Clear Stack"
+  },
   "nav_python_lab": "Python Lab",
   "lab_title": "Python Security Lab",
   "lab_difficulty": "Difficulty",
@@ -17,5 +35,255 @@
   "lab_results": "Execution Results",
   "lab_passed_all": "All tests passed!",
   "lab_failed": "Some tests failed or encountered errors.",
-  "lab_back": "Back to Map"
+  "lab_back": "Back to Map",
+  "map": {
+    "title": "SECURITY ENGINEERING LAB",
+    "subtitle": "Build, execute and validate defensive architectures against controlled adversarial scenarios.",
+    "attempts": "Attempts",
+    "start": "START LAB",
+    "rerun": "RE-RUN LAB",
+    "requires": "Requires"
+  },
+  "tiers": {
+    "foundation": "FOUNDATION",
+    "intermediate": "INTERMEDIATE",
+    "specialization": "SPECIALIZATION",
+    "advanced": "ADVANCED"
+  },
+  "domains": {
+    "application_security": "Application Security",
+    "devsecops": "DevSecOps",
+    "cloud_security": "Cloud & AWS Security",
+    "privacy_engineering": "Privacy Engineering",
+    "ai_security": "AI Security & Governance"
+  },
+  "python_lab": {
+    "title": "Python Security Lab",
+    "subtitle": "Interactive Defense Engineering & Signal Parsing",
+    "step_label": "STEP",
+    "assisted_step_label": "ASSISTED STEP",
+    "next_step": "Next Step â†’",
+    "running_tests": "Running Tests...",
+    "run_code": "Run Code",
+    "execution_results": "Execution Results",
+    "run_prompt": "Run your code to see results.",
+    "passed_success": "All tests passed successfully!",
+    "failed_errors": "Some tests failed or encountered errors.",
+    "assisted_completed": "Correct. Step completed!",
+    "assisted_incorrect": "Incorrect option selected.",
+    "tests_passed_summary": "tests passed",
+    "test_label": "Test",
+    "test_passed": "Passed",
+    "test_failed": "Failed",
+    "test_expected": "Expected",
+    "test_received": "Received"
+  },
+  "missions": {
+    "mission_001": {
+      "title": "Stop the SQL Injection",
+      "threat": "SQL Injection",
+      "learning_objective": "Protect API endpoint against injection probes without violating latency budgets."
+    },
+    "mission_002": {
+      "title": "Excessive Personal Data Exposure",
+      "threat": "Data Exposure",
+      "learning_objective": "Prevent PII leakage in API responses using data layer controls."
+    },
+    "mission_003": {
+      "title": "Unsafe Prompt & Tool Boundary",
+      "threat": "AI / Prompt Boundary",
+      "learning_objective": "Isolate LLM execution from untrusted prompts."
+    }
+  },
+  "brief": {
+    "learning_objective": "Learning Objective",
+    "threat_context": "Threat Vector Context",
+    "source_code": "Target Application Source Code (Vulnerable)",
+    "constraints": "Engineering Constraints",
+    "max_overhead": "Max Control Overhead",
+    "min_availability": "Min Availability",
+    "enter_arena": "Enter Security Arena"
+  },  "inspector": {
+    "title": "SECURITY CONTROL INSPECTOR",
+    "layer": "Architectural Layer",
+    "latency": "Latency Impact",
+    "complexity": "Implementation Complexity",
+    "complexity_low": "Low",
+    "rationale": "Architectural Rationale & Purpose",
+    "rationale_default": "This control provides defense-in-depth security measures at the designated architectural boundary.",
+    "low": "Low",
+    "close": "Close Inspector"
+  },
+  "debrief": {
+    "validated": "ARCHITECTURE VALIDATED",
+    "violation": "ARCHITECTURAL TRADE-OFF VIOLATION",
+    "observed_mitigation": "Observed Mitigation",
+    "baseline_network": "Baseline (Network)",
+    "architectural_delta": "Architectural Delta",
+    "observed_availability": "Observed Availability",
+    "rationale_title": "Engineering Trade-off / Rationale",
+    "lessons_title": "Failure Must Teach: Lessons Learned",
+    "why_failed": "Why it failed",
+    "what_demonstrates": "What this demonstrates",
+    "evidence_title": "Security Decision Record (Evidence)",
+    "inspect_json": "Inspect JSON",
+    "rev_architecture": "\u2190 Revise Architecture",
+    "return_dashboard": "Return to Dashboard \u2192",
+    "rationale_validated": "Architecture validated. Observed mitigation ({mitigation}%) satisfied the required architecture constraints.",
+    "rationale_violation": "Architecture violated operational constraints. Latency budget passed: {latency}. Availability constraint passed: {availability}.",
+    "yes": "Yes",
+    "no": "No",
+    "met": "met",
+    "not_met": "not met",
+    "controls": {
+      "parameterized_queries": {
+        "name": "Parameterized Queries",
+        "layer": "Data Access / Input",
+        "why_failed": "Parameterized Queries protect the SQL execution boundary against injection by separating code from data. They do not reduce the amount of data returned by a legitimate query.",
+        "demonstrates": "SQL Injection and Excessive Data Exposure are different threat classes requiring controls at different architectural layers. Input protection does not guarantee output privacy."
+      },
+      "input_sanitization": {
+        "name": "Input Sanitization",
+        "layer": "Gateway / Input",
+        "why_failed": "Removes dangerous characters from requests, but is ineffective against application logic flaws, data over-fetching, or semantic AI attacks that use natural language.",
+        "demonstrates": "Gateway-level filtering cannot fix backend architectural vulnerabilities."
+      },
+      "rate_limiting_strict": {
+        "name": "Strict Rate Limiting",
+        "layer": "Network / Gateway",
+        "why_failed": "Rate limiting restricts volumetric abuse such as brute force and DDoS. A single well-crafted request containing a logic flaw, SQL injection, or AI prompt bypass will succeed regardless of frequency limits.",
+        "demonstrates": "Network-layer controls cannot inspect or sanitize application-layer payloads."
+      },
+      "waf_rule_heavy": {
+        "name": "Heavy Signature WAF",
+        "layer": "Perimeter",
+        "why_failed": "Blocks known attack signatures at the perimeter. It cannot protect against internal business logic flaws, legitimate-looking data over-exposure, or semantic AI attacks.",
+        "demonstrates": "Perimeter defenses lack the application context needed to prevent logic-based vulnerabilities."
+      },
+      "data_masking": {
+        "name": "Field-Level PII Masking",
+        "layer": "Data / Output",
+        "why_failed": "Data masking obfuscates sensitive fields in the response payload. It offers zero protection against unauthorized command execution or malicious input payloads reaching the database.",
+        "demonstrates": "Output redaction does not secure the execution environment against injection vectors."
+      },
+      "differential_privacy": {
+        "name": "Differential Privacy Filter",
+        "layer": "Data / Output",
+        "why_failed": "Adds statistical noise to datasets to protect individual identities. It is irrelevant for preventing infrastructure exploits or SQL injections.",
+        "demonstrates": "Privacy controls are not interchangeable with structural security controls."
+      },
+      "semantic_guardrails": {
+        "name": "Semantic Input Guardrails",
+        "layer": "AI / Middleware",
+        "why_failed": "Evaluates prompt intent for AI systems. Adds massive latency overhead and is useless for standard web vulnerabilities like SQL injection or excessive data exposure.",
+        "demonstrates": "AI middleware is highly domain-specific and introduces heavy operational trade-offs if misused."
+      },
+      "output_content_filters": {
+        "name": "AI Output Content Filters",
+        "layer": "AI / Middleware",
+        "why_failed": "Validates the output of an AI agent to prevent unauthorized data generation. Does not prevent the initial injection or protect standard databases.",
+        "demonstrates": "Output validation must be paired with input validation to achieve true Defense-in-Depth."
+      },
+      "static_analysis_bandit": {
+        "name": "Static Analysis (Bandit)",
+        "layer": "Source Code",
+        "why_failed": "The code contains insecure patterns detected by static analysis.",
+        "demonstrates": "Static analysis identifies vulnerabilities in the source code before execution."
+      },
+      "dependency_analysis_safety": {
+        "name": "Dependency Analysis (Safety)",
+        "layer": "Supply Chain / Dependencies",
+        "why_failed": "The project uses dependencies with known security vulnerabilities.",
+        "demonstrates": "SCA identifies supply chain risks in third-party packages."
+      }
+    }
+  },"pedagogy": {
+    "mode_guided": "Guided",
+    "mode_assisted": "Assisted",
+    "mode_free_code": "Free Code",
+    "step": "Step",
+    "submit": "Submit Answer",
+    "next": "Next Step",
+    "correct_feedback": "Correct! Well done.",
+    "incorrect_feedback": "Not quite. Review the concept and try again.",
+    "try_again": "Try Again",
+    "guided_completed": "Guided Mode Completed! Assisted Mode Unlocked."
+  },
+  "assisted": {
+    "hints": {
+      "loop": "Hint: think about the basic iteration command in Python.",
+      "positive": "Hint: a positive value is strictly above zero.",
+      "accumulate": "Hint: we need to accumulate the value in the total variable."
+    }
+  },
+  "exercises": {
+    "py001": {
+      "meta": {
+        "title": "Trace the Signal",
+        "description": "Implement a function solve(data: list) -> int that returns the sum of all positive integers in the list."
+      },
+      "guided": {
+        "completed_title": "GUIDED COMPLETED",
+        "completed_message": "You completed the conceptual walkthrough. Next, build the solution step by step in Assisted Mode.",
+        "continue_assisted": "Continue to Assisted",
+        "step1": {
+          "question": "What is the primary goal of this function?",
+          "opt0": "Return the length of the list",
+          "opt1": "Sum all numbers in the list",
+          "opt2": "Sum only the numbers strictly greater than zero"
+        },
+        "step2": {
+          "question": "Which control structure is best suited to check every item in a list?",
+          "opt0": "if/else statement",
+          "opt1": "for loop",
+          "opt2": "while True loop"
+        },
+        "step3": {
+          "question": "How do we properly check if a number 'x' is positive?",
+          "opt0": "x >= 0",
+          "opt1": "x > 0",
+          "opt2": "x != 0"
+        }
+      },
+      "threat": {
+        "title": "Telemetry Filtering",
+        "scenario": "Imagine that you are processing security telemetry containing valid observations and noisy or discarded values.",
+        "objective": "Use iteration, conditions and accumulation to isolate valid observations and calculate a security metric.",
+        "briefing_title": "SEC-OPS INTEL BRIEFING",
+        "view_context": "[View Context]",
+        "hide_context": "[Hide Context]",
+        "scenario_label": "Scenario",
+        "objective_label": "Mission Objective"
+      },
+      "free_code": {
+        "title": "FREE CODE",
+        "message": "Solve the challenge independently. Write your own implementation of solve(data) and validate it against the exercise tests."
+      },
+      "assisted": {
+        "code_updated": "Code Updated!",
+        "snapshot_injected": "Snapshot Injected",
+        "step1": {
+          "question": "Which control structure iterates through each item in the list?",
+          "opt0": "for x in data:",
+          "opt1": "if x > 0:",
+          "opt2": "total += x",
+          "hint": "Use a for loop to scan every element in the sequence."
+        },
+        "step2": {
+          "question": "What statement checks if the current number is positive?",
+          "opt0": "if x > 0:",
+          "opt1": "if x < 0:",
+          "opt2": "if x == 0:",
+          "hint": "Filter out zero and negative values by evaluating if x is strictly greater than zero."
+        },
+        "step3": {
+          "question": "What action should be taken when a positive number is found?",
+          "opt0": "total += x",
+          "opt1": "total -= x",
+          "opt2": "return x",
+          "hint": "Accumulate valid numbers into the running total variable."
+        }
+      }
+    }
+  }
 }

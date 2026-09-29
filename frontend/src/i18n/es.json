@@ -1,23 +1,280 @@
-{
-  "arena.title": "SENTINEL FORGE",
-  "arena.subtitle": "Laboratorio Interactivo de Ingeniería de Seguridad",
-  "stack.title": "PILA DE ARQUITECTURA DEFENSIVA",
-  "stack.empty": "Arquitectura vacía. Arrastre controles aquí.",
-  "metrics.latency": "Latencia Acumulada",
-  "metrics.budget": "Máximo Permitido",
-  "status.validated": "MISIÓN VALIDADA",
-  "status.violation": "VIOLACIÓN DE TRADE-OFF ARQUITECTURAL",
-  "btn.deploy": "Ejecutar Validación en Sandbox",
-  "btn.clear": "Limpiar Pila",
-  
+﻿{
+  "arena": {
+    "title": "SENTINEL FORGE",
+    "subtitle": "Laboratorio Interactivo de Ingeniería de Seguridad"
+  },
+  "stack": {
+    "title": "PISTA DE ARQUITECTURA DEFENSIVA",
+    "empty": "Arquitectura vacía. Arrastre los controles aquí."
+  },
+  "metrics": {
+    "latency": "Latencia Acumulada",
+    "budget": "Máximo Permitido"
+  },
+  "status": {
+    "validated": "MISIÓN VALIDADA",
+    "violation": "VIOLACIÓN DE COMPROMISO ARQUITECTÓNICO"
+  },
+  "btn": {
+    "deploy": "Ejecutar Validación de Sandbox",
+    "clear": "Limpiar Pila"
+  },
   "nav_python_lab": "Laboratorio Python",
-  "lab_title": "Laboratorio de Seguridad Python",
+  "lab_title": "Laboratorio de Seguridad en Python",
   "lab_difficulty": "Dificultad",
   "lab_objectives": "Objetivos de Aprendizaje",
   "lab_run_code": "Ejecutar Código",
   "lab_results": "Resultados de Ejecución",
-  "lab_passed_all": "¡Todos los tests pasaron!",
-  "lab_failed": "Algunos tests fallaron o encontraron errores.",
-  "lab_back": "Volver al Mapa"
-
+  "lab_passed_all": "¡Todas las pruebas pasaron!",
+  "lab_failed": "Algunas pruebas fallaron o encontraron errores.",
+  "lab_back": "Volver al Mapa",
+  "map": {
+    "title": "LABORATORIO DE INGENIERÍA DE SEGURIDAD",
+    "subtitle": "Construya, ejecute y valide arquitecturas defensivas contra escenarios adversarios controlados.",
+    "attempts": "Intentos",
+    "start": "INICIAR LABORATORIO",
+    "rerun": "RE-EJECUTAR LABORATORIO",
+    "requires": "Requiere"
+  },
+  "tiers": {
+    "foundation": "FUNDACIÓN",
+    "intermediate": "INTERMEDIO",
+    "specialization": "ESPECIALIZACIÓN",
+    "advanced": "AVANZADO"
+  },
+  "domains": {
+    "application_security": "Seguridad de Aplicaciones",
+    "devsecops": "DevSecOps",
+    "cloud_security": "Seguridad en la Nube y AWS",
+    "privacy_engineering": "Ingeniería de Privacidad",
+    "ai_security": "Seguridad y Gobernanza de IA"
+  },
+  "python_lab": {
+    "title": "Laboratorio de Seguridad en Python",
+    "subtitle": "Ingeniería de Defensa Interactiva y Análisis de Señales",
+    "step_label": "PASO",
+    "assisted_step_label": "PASO ASISTIDO",
+    "next_step": "Siguiente Paso →",
+    "running_tests": "Ejecutando Pruebas...",
+    "run_code": "Ejecutar Código",
+    "execution_results": "Resultados de Ejecución",
+    "run_prompt": "Ejecute su código para ver los resultados.",
+    "passed_success": "¡Todas las pruebas pasaron exitosamente!",
+    "failed_errors": "Algunas pruebas fallaron o encontraron errores.",
+    "assisted_completed": "Correcto. ¡Paso completado!",
+    "assisted_incorrect": "Opción seleccionada incorrecta.",
+    "tests_passed_summary": "pruebas pasadas",
+    "test_label": "Prueba",
+    "test_passed": "Pasó",
+    "test_failed": "Falló",
+    "test_expected": "Esperado",
+    "test_received": "Recibido"
+  },
+  "missions": {
+    "mission_001": {
+      "title": "Detener la Inyección SQL",
+      "threat": "Inyección SQL",
+      "learning_objective": "Proteger el endpoint de la API contra sondas de inyección sin superar los límites de latencia."
+    },
+    "mission_002": {
+      "title": "Exposición Excesiva de Datos Personales",
+      "threat": "Exposición de Datos"
+    },
+    "mission_003": {
+      "title": "Límite de Herramientas y Prompt Inseguro",
+      "threat": "Límite de Prompt / IA"
+    }
+  },
+  "brief": {
+    "learning_objective": "Objetivo de Aprendizaje",
+    "threat_context": "Contexto del Vector de Amenaza",
+    "source_code": "Código Fuente de la Aplicación Objetivo (Vulnerable)",
+    "constraints": "Restricciones de Ingeniería",
+    "max_overhead": "Máximo Overhead de Control",
+    "min_availability": "Disponibilidad Mínima",
+    "enter_arena": "Entrar en la Arena de Seguridad"
+  },  "inspector": {
+    "title": "INSPECTOR DE CONTROL DE SEGURIDAD",
+    "layer": "Capa Arquitectónica",
+    "latency": "Impacto de Latencia",
+    "complexity": "Complejidad de Implementación",
+    "complexity_low": "Baja",
+    "rationale": "Fundamentos y Propósito Arquitectónico",
+    "rationale_default": "Este control proporciona medidas de seguridad de defensa en profundidad en el límite arquitectónico designado.",
+    "low": "Baja",
+    "close": "Cerrar Inspector"
+  },
+  "debrief": {
+    "validated": "ARQUITECTURA VALIDADA",
+    "violation": "VIOLACIÓN DE COMPROMISO ARQUITECTÓNICO",
+    "observed_mitigation": "Mitigación Observada",
+    "baseline_network": "Línea Base (Red)",
+    "architectural_delta": "Delta Arquitectónico",
+    "observed_availability": "Disponibilidad Observada",
+    "rationale_title": "Compromiso de Ingeniería / Fundamentos",
+    "lessons_title": "El Fallo Debe Enseñar: Lecciones Aprendidas",
+    "why_failed": "Por qué falló",
+    "what_demonstrates": "Qué demuestra esto",
+    "evidence_title": "Registro de Decisión de Seguridad (Evidencia)",
+    "inspect_json": "Inspeccionar JSON",
+    "rev_architecture": "\u2190 Revisar Arquitectura",
+    "return_dashboard": "Volver al Panel \u2192",
+    "rationale_validated": "Arquitectura validada. La mitigación observada ({mitigation}%) cumplió las restricciones de arquitectura requeridas.",
+    "rationale_violation": "La arquitectura incumplió las restricciones operativas. Presupuesto de latencia cumplido: {latency}. Restricción de disponibilidad cumplida: {availability}.",
+    "yes": "Sí",
+    "no": "No",
+    "met": "cumplido",
+    "not_met": "no cumplido",
+    "controls": {
+      "parameterized_queries": {
+        "name": "Consultas Parametrizadas",
+        "layer": "Acceso a Datos / Entrada",
+        "why_failed": "Las consultas parametrizadas protegen el límite de ejecución SQL contra inyecciones separando el código de los datos. No reducen la cantidad de datos devueltos por una consulta legítima.",
+        "demonstrates": "La inyección SQL y la exposición excesiva de datos son clases de amenaza diferentes que requieren controles en distintas capas arquitectónicas. La protección de entrada no garantiza la privacidad de salida."
+      },
+      "input_sanitization": {
+        "name": "Saneamiento de Entrada",
+        "layer": "Gateway / Entrada",
+        "why_failed": "Elimina caracteres peligrosos de las solicitudes, pero es ineficaz frente a fallos de lógica de aplicación, exceso de datos solicitados o ataques de IA semánticos mediante lenguaje natural.",
+        "demonstrates": "El filtrado en el gateway no puede corregir vulnerabilidades arquitectónicas del backend."
+      },
+      "rate_limiting_strict": {
+        "name": "Limitación Estricta de Tasa",
+        "layer": "Red / Gateway",
+        "why_failed": "La limitación de tasa restringe el abuso volumétrico, como fuerza bruta y DDoS. Una única solicitud bien construida que contenga un fallo lógico, una inyección SQL o un bypass de prompt de IA puede tener éxito independientemente de los límites de frecuencia.",
+        "demonstrates": "Los controles de red no pueden inspeccionar ni sanear los payloads de la capa de aplicación."
+      },
+      "waf_rule_heavy": {
+        "name": "WAF de Firmas Pesadas",
+        "layer": "Perímetro",
+        "why_failed": "Bloquea firmas de ataque conocidas en el perímetro. No puede proteger frente a fallos internos de lógica de negocio, exposición legítima de datos o ataques semánticos contra sistemas de IA.",
+        "demonstrates": "Las defensas perimetrales carecen del contexto de aplicación necesario para impedir vulnerabilidades basadas en lógica."
+      },
+      "data_masking": {
+        "name": "Enmascaramiento de PII por Campo",
+        "layer": "Datos / Salida",
+        "why_failed": "El enmascaramiento de datos ofusca campos sensibles en el payload de respuesta. No ofrece protección contra la ejecución de comandos no autorizados ni contra payloads maliciosos que lleguen a la base de datos.",
+        "demonstrates": "La redacción de salida no protege el entorno de ejecución frente a vectores de inyección."
+      },
+      "differential_privacy": {
+        "name": "Filtro de Privacidad Diferencial",
+        "layer": "Datos / Salida",
+        "why_failed": "Añade ruido estadístico a los conjuntos de datos para proteger identidades individuales. No es relevante para prevenir exploits de infraestructura o inyecciones SQL.",
+        "demonstrates": "Los controles de privacidad no son intercambiables con controles de seguridad estructurales."
+      },
+      "semantic_guardrails": {
+        "name": "Guardrails de Entrada Semántica",
+        "layer": "IA / Middleware",
+        "why_failed": "Evalúa la intención de los prompts en sistemas de IA. Añade una latencia considerable y no sirve para vulnerabilidades web estándar como SQL injection o exposición excesiva de datos.",
+        "demonstrates": "El middleware de IA es altamente específico del dominio y puede introducir importantes compromisos operativos cuando se utiliza de forma incorrecta."
+      },
+      "output_content_filters": {
+        "name": "Filtros de Contenido de Salida de IA",
+        "layer": "IA / Middleware",
+        "why_failed": "Valida la salida de un agente de IA para impedir la generación de datos no autorizados. No evita la inyección inicial ni protege las bases de datos estándar.",
+        "demonstrates": "La validación de salida debe combinarse con la validación de entrada para lograr una defensa en profundidad real."
+      },
+      "static_analysis_bandit": {
+        "name": "Análisis Estático (Bandit)",
+        "layer": "Código Fuente",
+        "why_failed": "El código contiene patrones inseguros detectados mediante análisis estático.",
+        "demonstrates": "El análisis estático identifica vulnerabilidades en el código fuente antes de la ejecución."
+      },
+      "dependency_analysis_safety": {
+        "name": "Análisis de Dependencias (Safety)",
+        "layer": "Cadena de Suministro / Dependencias",
+        "why_failed": "El proyecto utiliza dependencias con vulnerabilidades de seguridad conocidas.",
+        "demonstrates": "El análisis SCA identifica riesgos de cadena de suministro en paquetes de terceros."
+      }
+    }
+  },"pedagogy": {
+    "mode_guided": "Guiado",
+    "mode_assisted": "Asistido",
+    "mode_free_code": "Código Libre",
+    "step": "Paso",
+    "submit": "Enviar Respuesta",
+    "next": "Siguiente",
+    "correct_feedback": "Correcto. ¡Bien hecho!",
+    "incorrect_feedback": "No exactamente. Revisa el concepto e inténtalo de nuevo.",
+    "try_again": "Intentar de nuevo",
+    "guided_completed": "¡Modo Guiado completado! Modo Asistido desbloqueado."
+  },
+  "assisted": {
+    "hints": {
+      "loop": "Pista: piensa en el comando básico de iteración en Python.",
+      "positive": "Pista: un valor positivo está estrictamente por encima de cero.",
+      "accumulate": "Pista: necesitamos acumular el valor en la variable total."
+    }
+  },
+  "exercises": {
+    "py001": {
+      "meta": {
+        "title": "Rastrear la Señal",
+        "description": "Implemente una función solve(data: list) -> int que devuelva la suma de todos los enteros positivos de la lista."
+      },
+      "guided": {
+        "completed_title": "GUIADO COMPLETADO",
+        "completed_message": "Completaste el recorrido conceptual. A continuación, construye la solución paso a paso en el Modo Asistido.",
+        "continue_assisted": "Continuar a Asistido",
+        "step1": {
+          "question": "¿Cuál es el objetivo principal de esta función?",
+          "opt0": "Devolver la longitud de la lista",
+          "opt1": "Sumar todos los números de la lista",
+          "opt2": "Sumar solo los números estrictamente mayores que cero"
+        },
+        "step2": {
+          "question": "¿Qué estructura de control es la más adecuada para comprobar cada elemento de una lista?",
+          "opt0": "declaración if/else",
+          "opt1": "bucle for",
+          "opt2": "bucle while True"
+        },
+        "step3": {
+          "question": "¿Cómo comprobamos correctamente si un número 'x' es positivo?",
+          "opt0": "x >= 0",
+          "opt1": "x > 0",
+          "opt2": "x != 0"
+        }
+      },
+      "threat": {
+        "title": "Filtrado de Telemetría",
+        "scenario": "Imagine que está procesando telemetría de seguridad que contiene observaciones válidas y valores ruidosos o descartados.",
+        "objective": "Utilice iteración, condiciones y acumulación para aislar observaciones válidas y calcular una métrica de seguridad.",
+        "briefing_title": "INFORME DE INTELIGENCIA DE SEGURIDAD",
+        "view_context": "[Ver Contexto]",
+        "hide_context": "[Ocultar Contexto]",
+        "scenario_label": "Escenario",
+        "objective_label": "Objetivo de la Misión"
+      },
+      "free_code": {
+        "title": "CÓDIGO LIBRE",
+        "message": "Resuelve el desafío de forma independiente. Escribe tu propia implementación de solve(data) y valídala con las pruebas del ejercicio."
+      },
+      "assisted": {
+        "code_updated": "Código actualizado",
+        "snapshot_injected": "Snapshot aplicado",
+        "step1": {
+          "question": "¿Qué bloque itera a través de cada elemento en la lista?",
+          "opt0": "for x in data:",
+          "opt1": "if x > 0:",
+          "opt2": "total += x",
+          "hint": "Utilice un bucle for para recorrer cada elemento de la secuencia."
+        },
+        "step2": {
+          "question": "¿Qué declaración verifica si el número actual es positivo?",
+          "opt0": "if x > 0:",
+          "opt1": "if x < 0:",
+          "opt2": "if x == 0:",
+          "hint": "Filtre los valores cero y negativos evaluando si x es estrictamente mayor que cero."
+        },
+        "step3": {
+          "question": "¿Qué acción debemos tomar cuando encontramos un número positivo?",
+          "opt0": "total += x",
+          "opt1": "total -= x",
+          "opt2": "return x",
+          "hint": "Acumule los números válidos en la variable total en ejecución."
+        }
+      }
+    }
+  }
 }
+
