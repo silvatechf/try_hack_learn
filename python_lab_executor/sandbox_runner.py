@@ -64,15 +64,20 @@ def _stop_container(container_name: str) -> None:
 
 
 def _terminate_process(process: subprocess.Popen) -> None:
-    if process.poll() is not None:
-        return
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
 
-    process.terminate()
-    try:
-        process.wait(timeout=2)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        process.wait()
+    for stream in (process.stdin, process.stdout, process.stderr):
+        if stream is not None and not stream.closed:
+            try:
+                stream.close()
+            except OSError:
+                pass
 
 
 def run_in_sandbox(
@@ -199,10 +204,14 @@ except Exception as e:
 
         try:
             process.stdin.write(harness_code.encode("utf-8"))
-            process.stdin.close()
         except BrokenPipeError:
+            pass
+        finally:
             if process.stdin and not process.stdin.closed:
-                process.stdin.close()
+                try:
+                    process.stdin.close()
+                except OSError:
+                    pass
 
         stdout, stderr, collection_status = _collect_process_output(
             process,
