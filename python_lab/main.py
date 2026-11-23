@@ -45,6 +45,11 @@ async def api_execute_exercise(payload: ExecutionPayload):
             )
             response.raise_for_status()
             execution_result = response.json()
+            if (
+                not isinstance(execution_result, dict)
+                or not isinstance(execution_result.get("status"), str)
+            ):
+                raise ValueError("Executor response has an invalid shape")
         except httpx.HTTPStatusError:
             raise HTTPException(
                 status_code=502,
