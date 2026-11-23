@@ -1,6 +1,6 @@
-Read AGENTS.md before doing anything. It is the project governance authority.
+﻿Read AGENTS.md before doing anything. It is the project governance authority.
 
-# SENTINELFORGE — AGENT GOVERNANCE
+# SENTINELFORGE â€” AGENT GOVERNANCE
 
 This file is authoritative project guidance.
 
@@ -101,16 +101,35 @@ Verified:
 - prerequisites
 - EN/ES
 - Mission Debrief
+- Python Lab end-to-end execution
+- Python Lab pedagogical feedback
+
+Python Lab verified states:
+
+- MASTERED
+- PRACTICE
+- NEEDS_REVIEW
+- BLOCKED
+
+Python Lab architecture:
+
+- Technical execution result remains separate from pedagogical evaluation.
+- `python_lab/pedagogical_evaluator.py` is deterministic and does not execute student code.
+- Runtime verification takes precedence over unit-test coverage.
+
+Regression evidence:
+
+- Orchestrator and AI Analyst regression tests: 7 passed.
+- MISSION-002 automated regression tests pass, but this does not by itself establish E2E VERIFIED status.
 
 Implemented but not currently runtime-verified:
 
-- MISSION-002
+- MISSION-002 E2E flow
 - SAST / Bandit
 
 Blocked / not verified:
 
 - SCA / Safety / pip-audit
-
 ## STOP RULE
 
 If something cannot be verified in the real local environment:

@@ -1,7 +1,7 @@
-import os
+﻿import os
 import json
 import httpx
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from .schemas import AISecurityBriefing
 from .prompt_builder import build_analysis_prompt
 
@@ -15,11 +15,11 @@ class AIAnalyst:
             raise ValueError("Invalid or incomplete SDR provided to AIAnalyst.")
             
         if not self.api_key:
-            # Fallback seguro estruturado quando nenhuma credencial de IA está configurada
+            # Fallback seguro estruturado quando nenhuma credencial de IA estÃ¡ configurada
             return self._generate_fallback_briefing(sdr)
             
         prompt = build_analysis_prompt(sdr)
-        # Integração assíncrona/síncrona limpa via httpx caso credencial exista
+        # IntegraÃ§Ã£o assÃ­ncrona/sÃ­ncrona limpa via httpx caso credencial exista
         # (Para fins de robustez do componente isolado, implementamos o cliente REST ou fallback seguro)
         return self._generate_fallback_briefing(sdr)
 
