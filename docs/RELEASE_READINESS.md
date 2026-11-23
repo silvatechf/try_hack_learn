@@ -183,3 +183,21 @@ A passing unit-test suite is supporting evidence, not proof of end-to-end or san
 ## Scope and limitations
 
 This assessment is based on files available on the GitHub branch at review time. It did not include running containers, probing a live deployment, reviewing every repository file, validating CI, or performing a penetration test. Findings must be confirmed and prioritized against the complete runtime and deployment context.
+
+
+## Follow-up implementation — Python Lab request boundaries
+
+**Branch:** `hardening/python-lab-request-boundaries`  
+**Status:** IMPLEMENTED IN SOURCE; NOT RUNTIME VERIFIED.
+
+The follow-up branch adds the following defensive validation:
+
+- Python Lab API limits `exercise_id` to 32 characters and `student_code` to 10,000 characters.
+- Executor independently enforces the same identifier and source-code bounds.
+- Executor requires between 1 and 50 test cases, each containing `input` and `expected`.
+- Python Lab API now checks executor HTTP status before parsing JSON and maps unsuccessful HTTP responses, transport failures, and invalid JSON to stable 502/503 responses without forwarding internal exception details.
+- Added focused Pydantic validation tests for the executor request model in `python_lab_executor/test_request_validation.py`.
+
+These are application-level field constraints. They do not replace an HTTP request-body limit at the reverse proxy/ASGI ingress, a concurrency/rate limit, an output cap, or service-to-service authentication. They also do not mitigate the executor's Docker daemon authority.
+
+**Required verification:** run the focused pytest file, exercise the API with valid, oversized, malformed, executor-unavailable, and non-2xx responses, and verify the existing Python Lab end-to-end flow against the local Docker runtime. No runtime result is claimed by this source change.
