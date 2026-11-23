@@ -27,14 +27,17 @@ The Python Lab API and executor share an internal Docker network. The executor a
 
 ## Findings and priorities
 
-### P0 — Docker daemon socket is mounted into the executor
+### P0 for remote/untrusted deployments — Docker daemon authority is delegated to the executor
+
+**Severity context:** The Docker socket mount is consistent with the approved Phase 4 architecture: the executor is the only service intended to access Docker, while the Python Lab API does not mount the socket and the executor has no published host port. For the documented trusted-local-demo scope, this is an accepted but highly privileged design constraint—not evidence that the sandbox itself can access the host daemon. It becomes a release-blocking P0 if untrusted users, remote tenants, or an internet/LAN-accessible deployment can submit execution requests or compromise the executor.
 
 **Evidence:** `docker-compose.yml` mounts `/var/run/docker.sock:/var/run/docker.sock` into `python_lab_executor`. The executor Dockerfile installs the Docker CLI, and `python_lab_executor/sandbox_runner.py` invokes `docker run`.
 
 **Impact:** Access to the Docker daemon socket is effectively a highly privileged host capability. A compromise of the executor process or any path that permits command execution in that container may become a host compromise. Container flags applied to learner workloads do not remove the executor's daemon-level authority.
 
 **Required direction:**
-- Keep this deployment explicitly restricted to a trusted local environment until the execution architecture is redesigned.
+- Preserve the Phase 4 separation: the public-facing Python Lab API must never receive the Docker socket.
+- Keep this deployment explicitly restricted to a trusted local environment until the executor's daemon authority is removed or isolated behind a separately hardened boundary.
 - Evaluate a dedicated sandbox service/VM boundary or a purpose-built isolated runner with narrowly scoped operations.
 - Do not expose the executor API outside its private network.
 - Define and test the threat model for malicious learner code, executor compromise, daemon compromise, and host escape.
@@ -50,8 +53,8 @@ The Python Lab API and executor share an internal Docker network. The executor a
 - `orchestrator/main.py` configures CORS with `allow_origins=["*"]`, `allow_methods=["*"]`, and `allow_headers=["*"]`.
 - `python_lab/main.py` uses the same permissive CORS configuration.
 - The inspected route handlers do not show authentication or authorization dependencies.
-- `python_lab_executor/main.py` exposes an internal execution route without an authentication dependency.
-- Compose publishes the Orchestrator, Target API, and Python Lab ports to the host.
+- `python_lab_executor/main.py` exposes an internal execution route without an authentication dependency; Compose currently limits network reachability by attaching the executor only to `python-lab-net` and does not publish its port.
+- Compose publishes the Orchestrator, Target API, and Python Lab ports to the host. The exact external reachability depends on host binding, firewall, and deployment network.
 
 **Impact:** CORS is not authentication. If these services are reachable beyond the intended local environment, unauthenticated callers may be able to invoke mission operations or submit code for execution. The exact exposure depends on network topology and deployment configuration.
 
@@ -86,6 +89,24 @@ The Python Lab API and executor share an internal Docker network. The executor a
 - Concurrent and repeated submissions remain within documented resource budgets.
 - Timeout, cancellation, daemon-unavailable, and malformed-output paths return stable API errors.
 - No learner-controlled output can cause unbounded memory use or log growth.
+
+
+### P1 — Existing sandbox isolation tests are weaker than their names imply
+
+**Evidence:** `python_lab_executor/test_isolation.py` checks that a few fixed paths (for example `/app/docker-compose.yml` and `/sentinelforge`) do not exist inside the sandbox. It also treats any exception from an external HTTP request as proof that network access is blocked. The Docker-socket test checks only whether `/var/run/docker.sock` exists inside the learner container.
+
+**Impact:** These tests are useful smoke checks, but they do not independently prove host filesystem isolation, network namespace configuration, or the absence of all sensitive mounts and inherited environment variables. A DNS failure or unrelated connection error can satisfy the current network assertion. A path that never existed in the image can satisfy the filesystem assertion without testing host isolation.
+
+**Required direction:**
+- Keep these tests as basic behavioral checks, but do not describe them as a complete isolation suite without stronger evidence.
+- Add focused runtime assertions against the actual container configuration (network mode, mounts, capabilities, read-only root, resource limits, and environment allowlist).
+- Use a controlled network-isolation test that distinguishes an expected blocked route from unrelated resolver/client failures.
+- Validate cleanup and timeout behavior against the real Docker daemon.
+
+**Acceptance criteria:**
+- Tests fail when a prohibited mount, network mode, or privilege is deliberately introduced.
+- Network-isolation evidence distinguishes blocked connectivity from unrelated test errors.
+- Runtime evidence is captured from the actual Docker execution path; unit tests alone are not treated as proof of host isolation.
 
 ### P1 — Executor result handling and API error mapping need verification
 
