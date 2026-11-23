@@ -65,11 +65,17 @@ def _stop_container(container_name: str) -> None:
 
 def _terminate_process(process: subprocess.Popen) -> None:
     if process.poll() is None:
-        process.terminate()
+        try:
+            process.terminate()
+        except ProcessLookupError:
+            pass
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
-            process.kill()
+            try:
+                process.kill()
+            except ProcessLookupError:
+                pass
             process.wait()
 
     for stream in (process.stdin, process.stdout, process.stderr):
