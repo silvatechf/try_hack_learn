@@ -1,7 +1,78 @@
-﻿
 import json
+import os
+import selectors
 import subprocess
 import time
+
+
+MAX_SANDBOX_OUTPUT_BYTES = 64 * 1024
+DOCKER_STOP_TIMEOUT_SECONDS = 5
+
+
+def _collect_process_output(
+    process: subprocess.Popen,
+    timeout_sec: int,
+    max_output_bytes: int = MAX_SANDBOX_OUTPUT_BYTES,
+) -> tuple[bytes, bytes, str]:
+    """Drain stdout/stderr concurrently with a combined byte ceiling.
+
+    Returns (stdout, stderr, status), where status is COMPLETED,
+    TIMEOUT, or OUTPUT_LIMIT_EXCEEDED.
+    """
+    stdout = bytearray()
+    stderr = bytearray()
+    total_bytes = 0
+    deadline = time.monotonic() + timeout_sec
+
+    with selectors.DefaultSelector() as selector:
+        if process.stdout is not None:
+            selector.register(process.stdout, selectors.EVENT_READ, stdout)
+        if process.stderr is not None:
+            selector.register(process.stderr, selectors.EVENT_READ, stderr)
+
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return bytes(stdout), bytes(stderr), "TIMEOUT"
+
+            for key, _ in selector.select(min(remaining, 0.1)):
+                chunk = os.read(key.fileobj.fileno(), min(4096, max_output_bytes + 1 - total_bytes))
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+
+                total_bytes += len(chunk)
+                key.data.extend(chunk)
+
+                if total_bytes > max_output_bytes:
+                    return bytes(stdout), bytes(stderr), "OUTPUT_LIMIT_EXCEEDED"
+
+    return bytes(stdout), bytes(stderr), "COMPLETED"
+
+
+def _stop_container(container_name: str) -> None:
+    try:
+        subprocess.run(
+            ["docker", "stop", "-t", "1", container_name],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=DOCKER_STOP_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+
+
+def _terminate_process(process: subprocess.Popen) -> None:
+    if process.poll() is not None:
+        return
+
+    process.terminate()
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 def run_in_sandbox(
@@ -93,32 +164,22 @@ except Exception as e:
         "--network",
         "none",
         "--read-only",
-
-        # Isolate runtime directories.
         "--tmpfs",
         "/var/run:rw,noexec,nosuid,nodev,size=1m",
-
         "--tmpfs",
         "/run:rw,noexec,nosuid,nodev,size=1m",
-
-        # Temporary writable area for Python.
         "--tmpfs",
         "/tmp:rw,noexec,nosuid,nodev,size=64m",
-
-        # Resource limits.
         "-m",
         "64m",
         "--cpus",
         "0.5",
         "--pids-limit",
         "32",
-
-        # Privilege restrictions.
         "--cap-drop",
         "ALL",
         "--security-opt",
         "no-new-privileges:true",
-
         "python:3.11-slim",
         "python",
         "-c",
@@ -126,51 +187,81 @@ except Exception as e:
     ]
 
     start_time = time.perf_counter()
+    process = None
 
     try:
-        res = subprocess.run(
+        process = subprocess.Popen(
             cmd,
-            input=harness_code,
-            capture_output=True,
-            text=True,
-            timeout=timeout_sec,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
 
-        duration_ms = (
-            time.perf_counter() - start_time
-        ) * 1000.0
+        try:
+            process.stdin.write(harness_code.encode("utf-8"))
+            process.stdin.close()
+        except BrokenPipeError:
+            if process.stdin and not process.stdin.closed:
+                process.stdin.close()
 
-        if res.returncode != 0:
+        stdout, stderr, collection_status = _collect_process_output(
+            process,
+            timeout_sec=timeout_sec,
+        )
+        duration_ms = (time.perf_counter() - start_time) * 1000.0
+
+        if collection_status == "OUTPUT_LIMIT_EXCEEDED":
+            _stop_container(container_name)
+            _terminate_process(process)
             return {
-                "status": "SANDBOX_ERROR",
-                "returncode": res.returncode,
-                "stdout": res.stdout,
-                "stderr": res.stderr,
+                "status": "OUTPUT_LIMIT_EXCEEDED",
+                "message": "Sandbox output exceeded the configured limit.",
+                "max_output_bytes": MAX_SANDBOX_OUTPUT_BYTES,
                 "duration_ms": duration_ms,
             }
 
-        lines = [
-            line
-            for line in res.stdout.strip().splitlines()
-            if line.strip()
-        ]
+        if collection_status == "TIMEOUT":
+            _stop_container(container_name)
+            _terminate_process(process)
+            return {
+                "status": "TIMEOUT",
+                "message": (
+                    f"Execution exceeded the time limit "
+                    f"({timeout_sec} seconds). Possible infinite loop."
+                ),
+                "duration_ms": duration_ms,
+            }
 
+        returncode = process.wait(timeout=2)
+        stdout_text = stdout.decode("utf-8", errors="replace")
+        stderr_text = stderr.decode("utf-8", errors="replace")
+
+        if returncode != 0:
+            return {
+                "status": "SANDBOX_ERROR",
+                "returncode": returncode,
+                "stdout": stdout_text,
+                "stderr": stderr_text,
+                "duration_ms": duration_ms,
+            }
+
+        lines = [line for line in stdout_text.strip().splitlines() if line.strip()]
         if not lines:
             return {
                 "status": "PARSING_ERROR",
-                "stdout": res.stdout,
-                "stderr": res.stderr,
+                "stdout": stdout_text,
+                "stderr": stderr_text,
                 "duration_ms": duration_ms,
             }
 
         try:
             output_data = json.loads(lines[-1])
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError as exc:
             return {
                 "status": "PARSING_ERROR",
-                "message": str(e),
-                "stdout": res.stdout,
-                "stderr": res.stderr,
+                "message": str(exc),
+                "stdout": stdout_text,
+                "stderr": stderr_text,
                 "duration_ms": duration_ms,
             }
 
@@ -178,35 +269,14 @@ except Exception as e:
             "status": "EXECUTED",
             "evaluation": output_data,
             "duration_ms": duration_ms,
-            "stderr": res.stderr,
+            "stderr": stderr_text,
         }
 
-    except subprocess.TimeoutExpired:
-        subprocess.run(
-            [
-                "docker",
-                "stop",
-                "-t",
-                "1",
-                container_name,
-            ],
-            capture_output=True,
-            text=True,
-        )
-
-        return {
-            "status": "TIMEOUT",
-            "message": (
-                f"Execution exceeded the time limit "
-                f"({timeout_sec} seconds). Possible infinite loop."
-            ),
-            "duration_ms": (
-                time.perf_counter() - start_time
-            ) * 1000.0,
-        }
-
-    except Exception as e:
+    except Exception as exc:
+        if process is not None:
+            _stop_container(container_name)
+            _terminate_process(process)
         return {
             "status": "SYSTEM_ERROR",
-            "message": str(e),
+            "message": str(exc),
         }
