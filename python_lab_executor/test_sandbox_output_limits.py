@@ -45,6 +45,8 @@ def test_stops_collecting_when_combined_output_exceeds_limit():
     )
 
     assert status == "OUTPUT_LIMIT_EXCEEDED"
+    if process.poll() is None:
+        process.kill()
     process.wait(timeout=2)
 
 
