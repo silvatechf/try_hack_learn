@@ -242,6 +242,7 @@ except Exception as e:
             }
 
         returncode = process.wait(timeout=2)
+        _terminate_process(process)  # Close all process pipes after normal completion.
         stdout_text = stdout.decode("utf-8", errors="replace")
         stderr_text = stderr.decode("utf-8", errors="replace")
 
