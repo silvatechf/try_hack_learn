@@ -219,6 +219,14 @@ def test_concurrent_deployments_keep_mission_phases_serialized(tmp_path):
         for result in results
     )
 
+    persisted_records = list(tmp_path.glob("sdr-*.json"))
+    assert len(persisted_records) == 2
+    persisted_missions = {
+        json.loads(record.read_text(encoding="utf-8"))["mission_id"]
+        for record in persisted_records
+    }
+    assert persisted_missions == {"MISSION-A", "MISSION-B"}
+
 
 def test_target_api_transport_failure_aborts_deployment(tmp_path):
     with patch("main.SDR_DIR", str(tmp_path)):
