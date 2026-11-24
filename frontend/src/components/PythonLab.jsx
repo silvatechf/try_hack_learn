@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/i18nContext';
 import ThreatBriefing from './ThreatBriefing';
+import { executeExercise, fetchExercises, MAX_STUDENT_CODE_LENGTH } from '../services/pythonLabApi';
 
-const PYTHON_LAB_API_URL = "http://localhost:8002/api/v1/python-lab";
+const PYTHON_LAB_API_URL = (import.meta.env.VITE_PYTHON_LAB_API_URL || 'http://localhost:8002/api/v1/python-lab').replace(/\\/+$/, '');
 
 export default function PythonLab({ onBack }) {
   const { t } = useI18n();
@@ -19,29 +20,48 @@ export default function PythonLab({ onBack }) {
   const [userCode, setUserCode] = useState('');
   const [execResult, setExecResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isLoadingExercises, setIsLoadingExercises] = useState(true);
+  const [exerciseLoadError, setExerciseLoadError] = useState(false);
+  const [exerciseLoadAttempt, setExerciseLoadAttempt] = useState(0);
+  const [executionError, setExecutionError] = useState(null);
   const [isFreeCodeUnlocked, setIsFreeCodeUnlocked] = useState(false);
   const [guidedCompleted, setGuidedCompleted] = useState(false);
   const [codeUpdatedAnim, setCodeUpdatedAnim] = useState(false);
   const [lastInjectedSnippet, setLastInjectedSnippet] = useState('');
 
   useEffect(() => {
-    fetch(`${PYTHON_LAB_API_URL}/exercises`)
-      .then(res => res.json())
-      .then(data => {
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.value)
-            ? data.value
-            : [];
-        if (list.length > 0) {
-          setExercises(list);
-          setExercise(list[0]);
-          setSelectedExerciseId(list[0].exercise_id);
-          setUserCode(list[0].starter_code || '');
+    const controller = new AbortController();
+
+    const loadExercises = async () => {
+      setIsLoadingExercises(true);
+      setExerciseLoadError(false);
+
+      try {
+        const list = await fetchExercises(PYTHON_LAB_API_URL, {
+          signal: controller.signal
+        });
+        const initialExercise =
+          list.find(item => item.exercise_id === 'PY-001') || list[0];
+
+        setExercises(list);
+        setExercise(initialExercise);
+        setSelectedExerciseId(initialExercise.exercise_id);
+        setUserCode(initialExercise.starter_code || '');
+      } catch (error) {
+        if (error?.name !== 'AbortError') {
+          console.error('Failed to load Python Lab exercises', error);
+          setExerciseLoadError(true);
         }
-      })
-      .catch(err => console.error("Failed to load exercises", err));
-  }, []);
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingExercises(false);
+        }
+      }
+    };
+
+    loadExercises();
+    return () => controller.abort();
+  }, [exerciseLoadAttempt]);
 
   const handleSelectExercise = (e) => {
     const exId = e.target.value;
@@ -57,6 +77,7 @@ export default function PythonLab({ onBack }) {
       setAssistedSelectedOption(null);
       setAssistedFeedback(null);
       setExecResult(null);
+      setExecutionError(null);
       setIsFreeCodeUnlocked(false);
       setGuidedCompleted(false);
       setCodeUpdatedAnim(false);
@@ -67,23 +88,35 @@ export default function PythonLab({ onBack }) {
   const handleRunCode = async () => {
     setLoading(true);
     setExecResult(null);
+    setExecutionError(null);
+
     try {
-      const res = await fetch(`${PYTHON_LAB_API_URL}/execute`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          exercise_id: selectedExerciseId,
-          student_code: userCode
-        })
+      const data = await executeExercise(PYTHON_LAB_API_URL, {
+        exercise_id: selectedExerciseId,
+        student_code: userCode
       });
-      const data = await res.json();
+
       setExecResult(data);
       if (labMode === 'assisted' && data?.evaluation?.passed_all === true) {
         setIsFreeCodeUnlocked(true);
       }
-    } catch (err) {
-      console.error("Execution failed", err);
-      setExecResult({ status: 'ERROR', evaluation: { status: 'ERROR', error: err.toString() } });
+    } catch (error) {
+      console.error('Python Lab execution request failed', error);
+
+      let messageKey = 'python_lab.api_request_failed';
+      if (error?.code === 'code_too_long') {
+        messageKey = 'python_lab.code_too_long';
+      } else if (
+        error?.code === 'unavailable' ||
+        error?.status === 502 ||
+        error?.status === 503
+      ) {
+        messageKey = 'python_lab.api_unavailable';
+      } else if (error?.code === 'invalid_response') {
+        messageKey = 'python_lab.api_invalid_response';
+      }
+
+      setExecutionError(t(messageKey));
     } finally {
       setLoading(false);
     }
@@ -188,11 +221,31 @@ export default function PythonLab({ onBack }) {
         </button>
       </div>
 
+      {isLoadingExercises && (
+        <div role="status" className="mb-4 rounded-lg border border-slate-700 bg-slate-900 p-3 text-xs text-slate-300">
+          {t('python_lab.loading_exercises')}
+        </div>
+      )}
+
+      {exerciseLoadError && (
+        <div role="alert" className="mb-4 rounded-lg border border-red-900/60 bg-red-950/30 p-4 text-xs text-red-200">
+          <p>{t('python_lab.api_load_error')}</p>
+          <button
+            type="button"
+            onClick={() => setExerciseLoadAttempt(previous => previous + 1)}
+            className="mt-3 rounded bg-slate-800 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700"
+          >
+            {t('python_lab.retry')}
+          </button>
+        </div>
+      )}
+
       <div className="mb-6 flex gap-4 items-center">
         <select
           value={selectedExerciseId}
           onChange={handleSelectExercise}
-          className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+          disabled={isLoadingExercises || exerciseLoadError || exercises.length === 0}
+          className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 disabled:opacity-50"
         >
           {exercises.map(ex => {
             const exTitle = translateWithFallback(ex.title_id, ex.title);
@@ -422,12 +475,21 @@ export default function PythonLab({ onBack }) {
           )}
 
           <div className="flex-1 my-3">
+            <div className="mb-2 flex items-center justify-between text-[10px] font-mono text-slate-500">
+              <label htmlFor="python-lab-code">{t('python_lab.code_editor')}</label>
+              <span className={userCode.length >= MAX_STUDENT_CODE_LENGTH ? 'text-amber-400' : ''}>
+                {userCode.length.toLocaleString()} / {MAX_STUDENT_CODE_LENGTH.toLocaleString()}
+              </span>
+            </div>
             <textarea
+              id="python-lab-code"
               value={userCode}
               onChange={(e) => setUserCode(e.target.value)}
+              maxLength={MAX_STUDENT_CODE_LENGTH}
               rows={12}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 leading-relaxed"
               spellCheck={false}
+              disabled={!exercise || isLoadingExercises || exerciseLoadError}
             />
           </div>
 
@@ -435,6 +497,9 @@ export default function PythonLab({ onBack }) {
             onClick={handleRunCode}
             disabled={
               loading ||
+              !exercise ||
+              isLoadingExercises ||
+              exerciseLoadError ||
               (
                 labMode === 'assisted' &&
                 exercise?.pedagogy?.assisted?.steps &&
@@ -451,7 +516,28 @@ export default function PythonLab({ onBack }) {
           <h3 className="text-sm font-bold text-white mb-2">{t('python_lab.execution_results')}</h3>
 
           <div className="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs overflow-y-auto max-h-[350px]">
-            {!execResult && (
+            {executionError && (
+              <div role="alert" className="mb-3 rounded border border-red-900/60 bg-red-950/30 p-3 text-red-200">
+                {executionError}
+              </div>
+            )}
+
+            {execResult?.status && (
+              <div className={`mb-3 rounded border p-3 ${execResult.status === 'EXECUTED' ? 'border-emerald-900/50 bg-emerald-950/20 text-emerald-300' : 'border-amber-900/50 bg-amber-950/20 text-amber-200'}`}>
+                <div className="font-bold">
+                  {t('python_lab.technical_status')}: {execResult.status}
+                </div>
+                {execResult.status !== 'EXECUTED' && (
+                  <p className="mt-1 text-[11px]">
+                    {t(`python_lab.status_${execResult.status.toLowerCase()}`) === `python_lab.status_${execResult.status.toLowerCase()}`
+                      ? t('python_lab.execution_interrupted')
+                      : t(`python_lab.status_${execResult.status.toLowerCase()}`)}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {!execResult && !executionError && (
               <span className="text-slate-500">{t('python_lab.run_prompt')}</span>
             )}
 
