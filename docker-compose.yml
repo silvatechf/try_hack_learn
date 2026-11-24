@@ -45,7 +45,7 @@ services:
     build: ./python_lab_executor
     environment:
       - PYTHON_LAB_MAX_CONCURRENT_EXECUTIONS=2
-      - PYTHON_LAB_EXECUTOR_TOKEN=${PYTHON_LAB_EXECUTOR_TOKEN:?Set PYTHON_LAB_EXECUTOR_TOKEN in .env}
+      - "PYTHON_LAB_EXECUTOR_TOKEN=${PYTHON_LAB_EXECUTOR_TOKEN:?Set PYTHON_LAB_EXECUTOR_TOKEN in .env}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
