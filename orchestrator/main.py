@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SDR_DIR = "/app/sdr_records"
+SDR_DIR = os.getenv("SDR_DIR", "/app/sdr_records")
 os.makedirs(SDR_DIR, exist_ok=True)
 
 TARGET_API_URL = "http://target_api:8000"
