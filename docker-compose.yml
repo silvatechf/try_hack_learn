@@ -1,4 +1,4 @@
-﻿version: '3.8'
+version: '3.8'
 
 services:
   target_api:
@@ -26,11 +26,15 @@ services:
       - "3001:3000"
     environment:
       - VITE_API_URL=http://localhost:8000
+      - VITE_PYTHON_LAB_API_URL=http://localhost:8002/api/v1/python-lab
     networks:
       - sentinel-net
 
   python_lab:
     build: ./python_lab
+    environment:
+      - "PYTHON_LAB_EXECUTOR_TOKEN=${PYTHON_LAB_EXECUTOR_TOKEN:?Set PYTHON_LAB_EXECUTOR_TOKEN in .env}"
+      - PYTHON_LAB_ALLOWED_ORIGINS=${PYTHON_LAB_ALLOWED_ORIGINS:-http://localhost:3001,http://127.0.0.1:3001}
     ports:
       - "8002:8002"
     networks:
@@ -39,6 +43,9 @@ services:
 
   python_lab_executor:
     build: ./python_lab_executor
+    environment:
+      - PYTHON_LAB_MAX_CONCURRENT_EXECUTIONS=2
+      - "PYTHON_LAB_EXECUTOR_TOKEN=${PYTHON_LAB_EXECUTOR_TOKEN:?Set PYTHON_LAB_EXECUTOR_TOKEN in .env}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:

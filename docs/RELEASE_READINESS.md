@@ -73,12 +73,12 @@ The Python Lab API and executor share an internal Docker network. The executor a
 
 ### P1 — Learner code and request payloads need explicit resource and size limits
 
-**Evidence:** `python_lab/main.py` accepts `student_code: str` without a declared maximum length. `python_lab_executor/main.py` accepts a generic list of tests. `sandbox_runner.py` applies a 3-second subprocess timeout and sets memory, CPU, PID, read-only, no-network, and capability restrictions to the spawned container.
+**Evidence (updated on the follow-up hardening branch):** `python_lab/main.py` now limits `exercise_id` to 32 characters and `student_code` to 10,000 characters. `python_lab_executor/main.py` independently applies those limits and validates 1–50 test cases with `input` and `expected` fields. `sandbox_runner.py` still captures subprocess stdout/stderr without an explicit output cap, and no concurrency or rate limit is implemented.
 
 **Impact:** Existing sandbox flags are useful, but request-size limits, schema constraints, bounded output, container lifecycle behavior, daemon-level quotas, and concurrent execution limits are not established by the inspected code. Large payloads or concurrent requests may exhaust API, executor, or Docker resources.
 
 **Required direction:**
-- Add strict Pydantic constraints for exercise IDs, source length, and test payload shape.
+- [IMPLEMENTED, NOT RUNTIME VERIFIED] Pydantic constraints for exercise IDs, source length, and test payload shape are present on the Python Lab API and executor.
 - Enforce bounded stdout/stderr and response sizes.
 - Apply concurrency limits and per-user/per-IP quotas at the appropriate trusted boundary.
 - Define Docker memory-swap, CPU, PID, process, and execution-time policies.
@@ -110,12 +110,12 @@ The Python Lab API and executor share an internal Docker network. The executor a
 
 ### P1 — Executor result handling and API error mapping need verification
 
-**Evidence:** `python_lab/main.py` parses the executor response as JSON and evaluates it without first checking the HTTP response status. The exception handler catches `httpx.RequestError`, but not all response parsing or validation failures. The pedagogical evaluator expects technical statuses such as `EXECUTED` and `TIMEOUT`.
+**Evidence (updated on the follow-up hardening branch):** `python_lab/main.py` now calls `raise_for_status()` before JSON parsing and maps executor HTTP errors, transport failures, and invalid JSON to stable 502/503 responses. The response payload is not yet validated against a typed executor response schema. The pedagogical evaluator expects technical statuses such as `EXECUTED` and `TIMEOUT`.
 
 **Impact:** Unexpected executor responses can propagate as unhandled server errors or produce inconsistent technical/pedagogical results. The current behavior has not been exercised against a live Docker daemon in this review.
 
 **Required direction:**
-- Validate executor HTTP status before parsing the response.
+- [IMPLEMENTED, NOT RUNTIME VERIFIED] Validate executor HTTP status before parsing the response.
 - Define a typed response schema for executor outcomes.
 - Map timeout, sandbox/system failure, malformed response, and unavailable executor to stable API responses.
 - Keep technical execution outcomes separate from pedagogical feedback.
@@ -183,3 +183,21 @@ A passing unit-test suite is supporting evidence, not proof of end-to-end or san
 ## Scope and limitations
 
 This assessment is based on files available on the GitHub branch at review time. It did not include running containers, probing a live deployment, reviewing every repository file, validating CI, or performing a penetration test. Findings must be confirmed and prioritized against the complete runtime and deployment context.
+
+
+## Follow-up implementation — Python Lab request boundaries
+
+**Branch:** `hardening/python-lab-request-boundaries`  
+**Status:** IMPLEMENTED IN SOURCE; NOT RUNTIME VERIFIED.
+
+The follow-up branch adds the following defensive validation:
+
+- Python Lab API limits `exercise_id` to 32 characters and `student_code` to 10,000 characters.
+- Executor independently enforces the same identifier and source-code bounds.
+- Executor requires between 1 and 50 test cases, each containing `input` and `expected`.
+- Python Lab API now checks executor HTTP status before parsing JSON and maps unsuccessful HTTP responses, transport failures, and invalid JSON to stable 502/503 responses without forwarding internal exception details.
+- Added focused Pydantic validation tests for the executor request model in `python_lab_executor/test_request_validation.py`.
+
+These are application-level field constraints. They do not replace an HTTP request-body limit at the reverse proxy/ASGI ingress, a concurrency/rate limit, an output cap, or service-to-service authentication. They also do not mitigate the executor's Docker daemon authority.
+
+**Required verification:** run the focused pytest file, exercise the API with valid, oversized, malformed, executor-unavailable, and non-2xx responses, and verify the existing Python Lab end-to-end flow against the local Docker runtime. No runtime result is claimed by this source change.

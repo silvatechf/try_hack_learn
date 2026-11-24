@@ -1,5 +1,7 @@
 # orchestrator/main.py
 
+import asyncio
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -23,10 +25,47 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SDR_DIR = "/app/sdr_records"
+SDR_DIR = os.getenv("SDR_DIR", "/app/sdr_records")
 os.makedirs(SDR_DIR, exist_ok=True)
 
 TARGET_API_URL = "http://target_api:8000"
+
+# Target API mission state is process-global. Keep the complete deployment flow
+# serialized until execution state becomes request-scoped.
+MISSION_EXECUTION_LOCK = asyncio.Lock()
+CONTROL_APPLY_TIMEOUT_SECONDS = 10.0
+
+
+async def _apply_security_controls(
+    client: httpx.AsyncClient,
+    mission_id: str,
+    control_ids: list[str],
+) -> None:
+    try:
+        response = await client.post(
+            f"{TARGET_API_URL}/internal/security-controls/apply",
+            json={
+                "mission_id": mission_id,
+                "control_ids": control_ids,
+            },
+            timeout=CONTROL_APPLY_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+    except httpx.TimeoutException as exc:
+        raise HTTPException(
+            status_code=504,
+            detail="Target API timed out while applying security controls.",
+        ) from exc
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Target API rejected the security-control update.",
+        ) from exc
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Target API is unavailable while applying security controls.",
+        ) from exc
 
 
 def execute_sast_scan(target_dir: str):
@@ -189,6 +228,11 @@ def api_list_controls():
 
 @app.post("/api/v1/arena/deploy")
 async def deploy_architecture(payload: dict):
+    async with MISSION_EXECUTION_LOCK:
+        return await _deploy_architecture(payload)
+
+
+async def _deploy_architecture(payload: dict):
     mission_id = payload.get(
         "mission_id",
         "MISSION-001",
@@ -204,26 +248,16 @@ async def deploy_architecture(payload: dict):
 
     cids = payload.get("control_ids", [])
 
-    async with httpx.AsyncClient() as client:
-        await client.post(
-            f"{TARGET_API_URL}/internal/security-controls/apply",
-            json={
-                "mission_id": mission_id,
-                "control_ids": [],
-            },
-        )
+    async with httpx.AsyncClient(
+        timeout=CONTROL_APPLY_TIMEOUT_SECONDS,
+    ) as client:
+        await _apply_security_controls(client, mission_id, [])
 
         baseline = await run_probe_campaign(
             mission.get("execution_contract")
         )
 
-        await client.post(
-            f"{TARGET_API_URL}/internal/security-controls/apply",
-            json={
-                "mission_id": mission_id,
-                "control_ids": cids,
-            },
-        )
+        await _apply_security_controls(client, mission_id, cids)
 
         observed = await run_probe_campaign(
             mission.get("execution_contract")
@@ -322,7 +356,7 @@ async def deploy_architecture(payload: dict):
 
     sdr = {
         "sdr_id": (
-            f"sdr-{int(datetime.now().timestamp())}"
+            f"sdr-{time.time_ns()}"
         ),
         "timestamp": (
             datetime.utcnow().isoformat() + "Z"

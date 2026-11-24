@@ -1,4 +1,4 @@
-﻿{
+{
   "arena": {
     "title": "SENTINEL FORGE",
     "subtitle": "Laboratorio Interactivo de Ingeniería de Seguridad"
@@ -89,7 +89,24 @@
     "next_step_failed": "Repasa los conceptos del ejercicio e inténtalo de nuevo.",
     "next_step_syntax_error": "Corrige el error de sintaxis y ejecuta el ejercicio nuevamente.",
     "next_step_timeout": "Revisa el bucle y asegúrate de que la ejecución termine.",
-    "score_separator": "de"
+    "score_separator": "de",
+    "loading_exercises": "Cargando ejercicios del Laboratorio Python...",
+    "api_load_error": "No se pudo cargar el catálogo de ejercicios. Comprueba el servicio Python Lab e inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "api_request_failed": "No se pudo completar la solicitud de ejecución. Inténtalo de nuevo.",
+    "api_unavailable": "El servicio Python Lab no está disponible en este momento. Inténtalo de nuevo en unos instantes.",
+    "api_invalid_response": "El servicio Python Lab devolvió una respuesta no válida.",
+    "code_too_long": "El código supera el límite de 10.000 caracteres.",
+    "code_editor": "Editor de código Python",
+    "technical_status": "Estado técnico de ejecución",
+    "execution_interrupted": "La ejecución no terminó correctamente.",
+    "status_output_limit_exceeded": "La ejecución se detuvo porque la salida combinada superó el límite de 64 KiB.",
+    "status_timeout": "La ejecución superó el límite de tiempo y fue detenida.",
+    "status_sandbox_error": "El entorno de ejecución aislado informó de un error.",
+    "status_parsing_error": "No se pudo interpretar el resultado de la ejecución.",
+    "status_system_error": "El servicio de ejecución encontró un error interno.",
+    "api_busy": "El Laboratorio Python está atendiendo el máximo de ejecuciones simultáneas. Espera un momento e inténtalo de nuevo.",
+    "payload_too_large": "La solicitud supera el límite permitido de 64 KiB."
   },
   "missions": {
     "mission_001": {
@@ -114,7 +131,8 @@
     "max_overhead": "Máximo Overhead de Control",
     "min_availability": "Disponibilidad Mínima",
     "enter_arena": "Entrar en la Arena de Seguridad"
-  },  "inspector": {
+  },
+  "inspector": {
     "title": "INSPECTOR DE CONTROL DE SEGURIDAD",
     "layer": "Capa Arquitectónica",
     "latency": "Impacto de Latencia",
@@ -138,8 +156,8 @@
     "what_demonstrates": "Qué demuestra esto",
     "evidence_title": "Registro de Decisión de Seguridad (Evidencia)",
     "inspect_json": "Inspeccionar JSON",
-    "rev_architecture": "\u2190 Revisar Arquitectura",
-    "return_dashboard": "Volver al Panel \u2192",
+    "rev_architecture": "← Revisar Arquitectura",
+    "return_dashboard": "Volver al Panel →",
     "rationale_validated": "Arquitectura validada. La mitigación observada ({mitigation}%) cumplió las restricciones de arquitectura requeridas.",
     "rationale_violation": "La arquitectura incumplió las restricciones operativas. Presupuesto de latencia cumplido: {latency}. Restricción de disponibilidad cumplida: {availability}.",
     "yes": "Sí",
@@ -208,7 +226,8 @@
         "demonstrates": "El análisis SCA identifica riesgos de cadena de suministro en paquetes de terceros."
       }
     }
-  },"pedagogy": {
+  },
+  "pedagogy": {
     "mode_guided": "Guiado",
     "mode_assisted": "Asistido",
     "mode_free_code": "Código Libre",
