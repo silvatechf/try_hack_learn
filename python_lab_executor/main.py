@@ -1,6 +1,8 @@
+import os
+from threading import BoundedSemaphore
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from sandbox_runner import run_in_sandbox
@@ -9,6 +11,11 @@ app = FastAPI(title="SentinelForge Python Lab Internal Executor")
 
 MAX_STUDENT_CODE_LENGTH = 10_000
 MAX_TEST_CASES = 50
+MAX_CONCURRENT_EXECUTIONS = int(os.getenv("PYTHON_LAB_MAX_CONCURRENT_EXECUTIONS", "2"))
+if not 1 <= MAX_CONCURRENT_EXECUTIONS <= 16:
+    raise RuntimeError("PYTHON_LAB_MAX_CONCURRENT_EXECUTIONS must be between 1 and 16")
+
+EXECUTION_SLOTS = BoundedSemaphore(MAX_CONCURRENT_EXECUTIONS)
 
 
 class ExecutionTest(BaseModel):
@@ -24,5 +31,15 @@ class InternalExecutionRequest(BaseModel):
 
 @app.post("/internal/python-lab/execute")
 def internal_execute(payload: InternalExecutionRequest):
-    tests = [test.model_dump() for test in payload.tests]
-    return run_in_sandbox(payload.student_code, tests)
+    if not EXECUTION_SLOTS.acquire(blocking=False):
+        raise HTTPException(
+            status_code=429,
+            detail="Python Lab executor is at capacity",
+            headers={"Retry-After": "2"},
+        )
+
+    try:
+        tests = [test.model_dump() for test in payload.tests]
+        return run_in_sandbox(payload.student_code, tests)
+    finally:
+        EXECUTION_SLOTS.release()
