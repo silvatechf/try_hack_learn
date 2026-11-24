@@ -356,7 +356,7 @@ async def _deploy_architecture(payload: dict):
 
     sdr = {
         "sdr_id": (
-            f"sdr-{int(datetime.now().timestamp())}"
+            f"sdr-{time.time_ns()}"
         ),
         "timestamp": (
             datetime.utcnow().isoformat() + "Z"
