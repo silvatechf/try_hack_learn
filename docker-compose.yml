@@ -40,6 +40,8 @@ services:
 
   python_lab_executor:
     build: ./python_lab_executor
+    environment:
+      - PYTHON_LAB_MAX_CONCURRENT_EXECUTIONS=2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:

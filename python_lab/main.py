@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 import httpx
 from exercises_registry import list_exercises, get_exercise
 from pedagogical_evaluator import evaluate_pedagogy
+from request_limits import RequestBodyLimitMiddleware
 
 app = FastAPI(title="SentinelForge Python Lab API")
 app.add_middleware(
@@ -15,6 +16,13 @@ app.add_middleware(
 
 EXECUTOR_URL = "http://python_lab_executor:8003"
 MAX_STUDENT_CODE_LENGTH = 10_000
+MAX_EXECUTION_REQUEST_BYTES = 64 * 1024
+
+app.add_middleware(
+    RequestBodyLimitMiddleware,
+    path="/api/v1/python-lab/execute",
+    max_bytes=MAX_EXECUTION_REQUEST_BYTES,
+)
 
 
 class ExecutionPayload(BaseModel):
@@ -50,7 +58,16 @@ async def api_execute_exercise(payload: ExecutionPayload):
                 or not isinstance(execution_result.get("status"), str)
             ):
                 raise ValueError("Executor response has an invalid shape")
-        except httpx.HTTPStatusError:
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 429:
+                retry_after = exc.response.headers.get("Retry-After", "2")
+                if not retry_after.isdigit():
+                    retry_after = "2"
+                raise HTTPException(
+                    status_code=429,
+                    detail="Python Lab is at capacity. Retry shortly.",
+                    headers={"Retry-After": retry_after},
+                ) from None
             raise HTTPException(
                 status_code=502,
                 detail="Python Lab executor returned an unsuccessful response",

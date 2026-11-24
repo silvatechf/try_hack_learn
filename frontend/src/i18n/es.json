@@ -104,7 +104,9 @@
     "status_timeout": "La ejecución superó el límite de tiempo y fue detenida.",
     "status_sandbox_error": "El entorno de ejecución aislado informó de un error.",
     "status_parsing_error": "No se pudo interpretar el resultado de la ejecución.",
-    "status_system_error": "El servicio de ejecución encontró un error interno."
+    "status_system_error": "El servicio de ejecución encontró un error interno.",
+    "api_busy": "El Laboratorio Python está atendiendo el máximo de ejecuciones simultáneas. Espera un momento e inténtalo de nuevo.",
+    "payload_too_large": "La solicitud supera el límite permitido de 64 KiB."
   },
   "missions": {
     "mission_001": {

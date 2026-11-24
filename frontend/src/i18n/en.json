@@ -112,7 +112,9 @@
     "status_timeout": "Execution exceeded the time limit and was stopped.",
     "status_sandbox_error": "The isolated execution environment reported an error.",
     "status_parsing_error": "The execution result could not be parsed.",
-    "status_system_error": "The execution service encountered an internal error."
+    "status_system_error": "The execution service encountered an internal error.",
+    "api_busy": "The Python Lab is handling its current execution capacity. Wait a moment and retry.",
+    "payload_too_large": "The request is larger than the allowed 64 KiB limit."
   },
   "missions": {
     "mission_001": {

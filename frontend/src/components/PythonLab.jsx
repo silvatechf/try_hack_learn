@@ -106,6 +106,10 @@ export default function PythonLab({ onBack }) {
       let messageKey = 'python_lab.api_request_failed';
       if (error?.code === 'code_too_long') {
         messageKey = 'python_lab.code_too_long';
+      } else if (error?.status === 429) {
+        messageKey = 'python_lab.api_busy';
+      } else if (error?.status === 413) {
+        messageKey = 'python_lab.payload_too_large';
       } else if (
         error?.code === 'unavailable' ||
         error?.status === 502 ||

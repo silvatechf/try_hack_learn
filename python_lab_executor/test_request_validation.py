@@ -1,6 +1,8 @@
 import pytest
+from fastapi import HTTPException
 from pydantic import ValidationError
 
+import main
 from main import InternalExecutionRequest
 
 
@@ -36,3 +38,37 @@ def test_accepts_valid_execution_payload():
 def test_rejects_invalid_execution_payloads(overrides):
     with pytest.raises(ValidationError):
         InternalExecutionRequest(**valid_payload(**overrides))
+
+
+
+def test_returns_429_when_execution_capacity_is_full(monkeypatch):
+    from threading import BoundedSemaphore
+
+    slots = BoundedSemaphore(1)
+    monkeypatch.setattr(main, "EXECUTION_SLOTS", slots)
+    assert slots.acquire(blocking=False)
+
+    with pytest.raises(HTTPException) as exc_info:
+        main.internal_execute(InternalExecutionRequest(**valid_payload()))
+
+    assert exc_info.value.status_code == 429
+    assert exc_info.value.headers["Retry-After"] == "2"
+    slots.release()
+
+
+def test_releases_execution_slot_when_runner_raises(monkeypatch):
+    from threading import BoundedSemaphore
+
+    slots = BoundedSemaphore(1)
+    monkeypatch.setattr(main, "EXECUTION_SLOTS", slots)
+
+    def failing_runner(*args, **kwargs):
+        raise RuntimeError("simulated runner failure")
+
+    monkeypatch.setattr(main, "run_in_sandbox", failing_runner)
+
+    with pytest.raises(RuntimeError, match="simulated runner failure"):
+        main.internal_execute(InternalExecutionRequest(**valid_payload()))
+
+    assert slots.acquire(blocking=False)
+    slots.release()
