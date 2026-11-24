@@ -475,7 +475,8 @@ The Orchestrator implementation now:
 - applies a 10-second timeout and checks HTTP status for Target API reset/control updates;
 - aborts before probe execution and SDR persistence on upstream timeout, HTTP failure, or transport failure;
 - includes regression tests for overlapping deployment sequences and all three upstream failure classes;
-- allows the SDR output directory to be configured with `SDR_DIR`, retaining the existing default.
+- allows the SDR output directory to be configured with `SDR_DIR`, retaining the existing default;
+- uses nanosecond-resolution SDR identifiers to avoid same-second record overwrites.
 
 **Status: IMPLEMENTED IN SOURCE; LOCAL DOCKER RUNTIME NOT VERIFIED.** A focused Orchestrator CI workflow has been added, but no successful workflow run has yet been observed.
 
