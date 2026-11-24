@@ -218,3 +218,23 @@ def test_concurrent_deployments_keep_mission_phases_serialized(tmp_path):
         result["security_decision_record"]["status"] == "VALIDATED"
         for result in results
     )
+
+
+def test_target_api_transport_failure_aborts_deployment(tmp_path):
+    with patch("main.SDR_DIR", str(tmp_path)):
+        with patch(
+            "main.httpx.AsyncClient.post",
+            side_effect=httpx.ConnectError("connection refused"),
+        ):
+            with patch("main.run_probe_campaign") as mock_run_probe:
+                result = client.post(
+                    "/api/v1/arena/deploy",
+                    json={"mission_id": "MISSION-001", "control_ids": []},
+                )
+
+    assert result.status_code == 503
+    assert result.json()["detail"] == (
+        "Target API is unavailable while applying security controls."
+    )
+    mock_run_probe.assert_not_called()
+    assert list(tmp_path.iterdir()) == []
