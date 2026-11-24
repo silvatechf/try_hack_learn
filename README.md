@@ -45,7 +45,7 @@ PowerShell (run from the repository root):
 
 ```powershell
 $existing = if (Test-Path .env) { @(Get-Content .env) } else { @() }
-if ($existing | Where-Object { $_ -match '^PYTHON_LAB_EXECUTOR_TOKEN=\\S+' }) {
+if ($existing | Where-Object { $_ -match '^PYTHON_LAB_EXECUTOR_TOKEN=\S+' }) {
     throw "PYTHON_LAB_EXECUTOR_TOKEN is already configured; refusing to replace it."
 }
 $bytes = New-Object byte[] 32
