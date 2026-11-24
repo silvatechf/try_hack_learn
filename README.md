@@ -58,7 +58,7 @@ if (-not ($existing | Where-Object { $_ -match '^PYTHON_LAB_ALLOWED_ORIGINS=' })
     $existing += "PYTHON_LAB_ALLOWED_ORIGINS=http://localhost:3001,http://127.0.0.1:3001"
 }
 Set-Content -Path .env -Value $existing -Encoding ascii
-Remove-Variable token, bytes, rng
+Remove-Variable token, bytes, rng, existing
 ```
 
 The token is not printed. See [Python Lab service authentication](docs/PYTHON_LAB_SERVICE_AUTH.md) for the trust boundary and rotation notes.
