@@ -27,6 +27,8 @@ app.add_middleware(
 
 EXECUTOR_URL = "http://python_lab_executor:8003"
 EXECUTOR_TOKEN = os.getenv("PYTHON_LAB_EXECUTOR_TOKEN")
+if EXECUTOR_TOKEN is not None and len(EXECUTOR_TOKEN) < 32:
+    raise RuntimeError("PYTHON_LAB_EXECUTOR_TOKEN must contain at least 32 characters")
 MAX_STUDENT_CODE_LENGTH = 10_000
 MAX_EXECUTION_REQUEST_BYTES = 64 * 1024
 
