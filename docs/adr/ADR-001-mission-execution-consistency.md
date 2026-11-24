@@ -1,6 +1,6 @@
 # ADR-001: Mission execution consistency in the current Compose runtime
 
-- **Status:** Proposed for implementation
+- **Status:** Implemented in source; local runtime verification pending
 - **Date:** 2026-11-24
 - **Scope:** Current single-instance trusted local demo
 - **Related:** `PROJECT_COMPLETION_ROADMAP.md`, `docs/PRODUCT_DIRECTION.md`
@@ -26,10 +26,10 @@ The current Compose Dockerfiles start Uvicorn with its default single worker. Th
 
 Use a deliberately constrained single-instance execution model until mission state is made request-scoped:
 
-1. Serialize complete mission deployments in the Orchestrator with an asynchronous process-local lock. The critical section must include reset, baseline, control application, observed probes, and SDR construction.
+1. Serialize complete mission deployments in the Orchestrator with an asynchronous process-local lock. The route holds the lock through reset, baseline, control application, observed probes, security-decision evaluation, and SDR persistence.
 2. Keep the Orchestrator at one worker while using this lock. Document that multiple workers or replicas invalidate the guarantee.
-3. Apply explicit HTTPX timeouts and call `raise_for_status()` after every control-application request. A failed control application must abort the mission and must never produce a normal validated SDR.
-4. Remove the Target API host port publication if repository/runtime usage confirms no supported user-facing workflow depends on direct host access. The Orchestrator should remain its only caller through the private Compose network.
+3. Apply a 10-second HTTPX timeout and call `raise_for_status()` after every control-application request. A timeout returns HTTP 504, an upstream HTTP failure returns HTTP 502, and a transport failure returns HTTP 503. All abort the mission before probe execution or SDR persistence.
+4. Keep the Target API host port unchanged for now. Removing it remains conditional on confirming that no supported local debugging or user workflow depends on direct host access; this requires local workflow validation.
 5. Add a focused regression test that forces two deploy requests to overlap and proves their reset/apply/probe sequences cannot interleave.
 6. Preserve mission IDs, execution contracts, response shape, and SDR schema.
 
@@ -66,8 +66,21 @@ Rejected. Concurrent runs can corrupt experimental correctness without producing
 - Local Docker runtime verifies at least two overlapping requests and the normal sequential mission flow.
 - No claim of distributed concurrency safety is made.
 
+## Implementation status
+
+Implemented in the Orchestrator source:
+
+- Added an `asyncio.Lock` around the complete deployment handler, including SDR construction and persistence.
+- Added a shared 10-second timeout for Target API control-application calls.
+- Added `raise_for_status()` checks for both reset and selected-control application.
+- Mapped upstream timeout, HTTP status failure, and transport failure to stable HTTP 504, 502, and 503 responses respectively.
+- Added regression tests for concurrent deployment serialization, upstream HTTP failure, and timeout abort behavior.
+- Kept the Target API host port unchanged pending local workflow confirmation.
+
+The lock is process-local. The Orchestrator must remain a single process with one worker and one replica while this containment design is in use.
+
 ## Verification status
 
-**NOT IMPLEMENTED. NOT VERIFIED.**
+**IMPLEMENTED IN SOURCE. LOCAL DOCKER RUNTIME NOT VERIFIED.**
 
-This ADR records the proposed containment decision. Implementation must be reviewed against existing tests and local runtime behavior before it is treated as accepted architecture.
+The new tests are supporting automated evidence only. They do not establish that the actual Compose runtime, Target API state, or concurrent HTTP mission flow behaves correctly. Run the focused Orchestrator tests and the local Docker concurrency/sequential mission checks before marking this ADR verified.
