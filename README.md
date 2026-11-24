@@ -1,12 +1,12 @@
 # Try Hack Learn
 
-**Interactive security engineering and Python learning laboratory.**
+**Create, validate, and study original cybersecurity learning tracks.**
 
-Try Hack Learn is a hands-on learning environment for exploring application security, defensive architecture, controlled adversarial scenarios, and Python programming. Learners configure defensive controls, run predefined security missions, inspect evidence-oriented results, and practice Python through guided exercises.
+Try Hack Learn is a single-author cybersecurity learning platform. The project owner creates original learning tracks, validates their content and executable challenges, and publishes versioned learning experiences for others to study. Existing security missions and the Python Lab provide the initial hands-on capabilities.
 
 > **Project status:** Development / release-readiness work in progress. This repository review is based on source inspection. It is not a production security assessment and does not establish that the application has been validated in a live runtime.
 
-## Product capabilities
+See [Product Direction](docs/PRODUCT_DIRECTION.md) for the approved product scope and [Project Completion Roadmap](PROJECT_COMPLETION_ROADMAP.md) for release sequencing. The MVP deliberately excludes learner accounts and multiple creators.\n\n## Product capabilities
 
 - **Security missions:** predefined scenarios for SQL injection, excessive personal-data exposure, and unsafe prompt/tool boundaries.
 - **Defensive architecture exercise:** select and combine controls, then compare baseline and observed probe results.
