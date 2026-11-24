@@ -381,13 +381,17 @@ This rule exists to prevent the project from growing indefinitely while implemen
 
 ## 9. Next Immediate Objective
 
-The next implementation target is **Track B/C closure, starting with the user-facing Python Lab integration**, because backend execution and sandbox security are already verified.
+The Python Lab frontend already contains the guided, assisted, and free-code learning flow. The frontend integration hardening now separates API transport handling from the React view, makes the API base URL configurable, enforces the documented code-length limit in the client, and presents technical execution status separately from pedagogical feedback.
+
+The next objective is **real browser/runtime verification of Track C1**, not another frontend subsystem.
 
 Do not modify the core missions to advance this track.
 
 The next cycle is:
 
-**Frontend integration contract → minimal implementation → real browser/runtime validation → regression of protected missions → checkpoint**
+**Frontend API client tests → production build → browser execution and failure-path checks → regression of protected missions → checkpoint**
+
+The frontend implementation remains **IMPLEMENTED; NOT VERIFIED** until the local build and browser flow are executed and their actual outputs are recorded.
 
 ---
 
