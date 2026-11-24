@@ -3,7 +3,7 @@ import { useI18n } from '../i18n/i18nContext';
 import ThreatBriefing from './ThreatBriefing';
 import { executeExercise, fetchExercises, MAX_STUDENT_CODE_LENGTH } from '../services/pythonLabApi';
 
-const PYTHON_LAB_API_URL = (import.meta.env.VITE_PYTHON_LAB_API_URL || 'http://localhost:8002/api/v1/python-lab').replace(/\\/+$/, '');
+const PYTHON_LAB_API_URL = (import.meta.env.VITE_PYTHON_LAB_API_URL || 'http://localhost:8002/api/v1/python-lab').replace(/\/+$/, '');
 
 export default function PythonLab({ onBack }) {
   const { t } = useI18n();
