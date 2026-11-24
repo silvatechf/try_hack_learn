@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -7,14 +9,24 @@ from pedagogical_evaluator import evaluate_pedagogy
 from request_limits import RequestBodyLimitMiddleware
 
 app = FastAPI(title="SentinelForge Python Lab API")
+PYTHON_LAB_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "PYTHON_LAB_ALLOWED_ORIGINS",
+        "http://localhost:3001,http://127.0.0.1:3001",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=PYTHON_LAB_ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 EXECUTOR_URL = "http://python_lab_executor:8003"
+EXECUTOR_TOKEN = os.getenv("PYTHON_LAB_EXECUTOR_TOKEN")
 MAX_STUDENT_CODE_LENGTH = 10_000
 MAX_EXECUTION_REQUEST_BYTES = 64 * 1024
 
@@ -41,10 +53,17 @@ async def api_execute_exercise(payload: ExecutionPayload):
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercise not found")
 
+    if not EXECUTOR_TOKEN:
+        raise HTTPException(
+            status_code=503,
+            detail="Python Lab executor authentication is not configured",
+        )
+
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
             response = await client.post(
                 f"{EXECUTOR_URL}/internal/python-lab/execute",
+                headers={"Authorization": f"Bearer {EXECUTOR_TOKEN}"},
                 json={
                     "exercise_id": payload.exercise_id,
                     "student_code": payload.student_code,
