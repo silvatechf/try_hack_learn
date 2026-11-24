@@ -74,7 +74,7 @@ Implemented in the Orchestrator source:
 - Added a shared 10-second timeout for Target API control-application calls.
 - Added `raise_for_status()` checks for both reset and selected-control application.
 - Mapped upstream timeout, HTTP status failure, and transport failure to stable HTTP 504, 502, and 503 responses respectively.
-- Added regression tests for concurrent deployment serialization, upstream HTTP failure, and timeout abort behavior.
+- Added regression tests for concurrent deployment serialization and for upstream HTTP, timeout, and transport failures.
 - Kept the Target API host port unchanged pending local workflow confirmation.
 
 The lock is process-local. The Orchestrator must remain a single process with one worker and one replica while this containment design is in use.
