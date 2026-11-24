@@ -1,4 +1,4 @@
-﻿{
+{
   "arena": {
     "title": "SENTINEL FORGE",
     "subtitle": "Interactive Security Engineering Laboratory",
@@ -97,7 +97,22 @@
     "next_step_failed": "Review the exercise concepts and try the solution again.",
     "next_step_syntax_error": "Fix the syntax error and run the exercise again.",
     "next_step_timeout": "Review the loop and ensure the code terminates.",
-    "score_separator": "of"
+    "score_separator": "of",
+    "loading_exercises": "Loading Python Lab exercises...",
+    "api_load_error": "The exercise catalog could not be loaded. Check the Python Lab service and try again.",
+    "retry": "Retry",
+    "api_request_failed": "The execution request could not be completed. Please try again.",
+    "api_unavailable": "The Python Lab service is currently unavailable. Please try again shortly.",
+    "api_invalid_response": "The Python Lab service returned an invalid response.",
+    "code_too_long": "The code exceeds the 10,000-character limit.",
+    "code_editor": "Python code editor",
+    "technical_status": "Technical execution status",
+    "execution_interrupted": "Execution did not complete successfully.",
+    "status_output_limit_exceeded": "Execution stopped because the combined output exceeded the 64 KiB limit.",
+    "status_timeout": "Execution exceeded the time limit and was stopped.",
+    "status_sandbox_error": "The isolated execution environment reported an error.",
+    "status_parsing_error": "The execution result could not be parsed.",
+    "status_system_error": "The execution service encountered an internal error."
   },
   "missions": {
     "mission_001": {
@@ -124,7 +139,8 @@
     "max_overhead": "Max Control Overhead",
     "min_availability": "Min Availability",
     "enter_arena": "Enter Security Arena"
-  },  "inspector": {
+  },
+  "inspector": {
     "title": "SECURITY CONTROL INSPECTOR",
     "layer": "Architectural Layer",
     "latency": "Latency Impact",
@@ -148,8 +164,8 @@
     "what_demonstrates": "What this demonstrates",
     "evidence_title": "Security Decision Record (Evidence)",
     "inspect_json": "Inspect JSON",
-    "rev_architecture": "\u2190 Revise Architecture",
-    "return_dashboard": "Return to Dashboard \u2192",
+    "rev_architecture": "← Revise Architecture",
+    "return_dashboard": "Return to Dashboard →",
     "rationale_validated": "Architecture validated. Observed mitigation ({mitigation}%) satisfied the required architecture constraints.",
     "rationale_violation": "Architecture violated operational constraints. Latency budget passed: {latency}. Availability constraint passed: {availability}.",
     "yes": "Yes",
@@ -218,7 +234,8 @@
         "demonstrates": "SCA identifies supply chain risks in third-party packages."
       }
     }
-  },"pedagogy": {
+  },
+  "pedagogy": {
     "mode_guided": "Guided",
     "mode_assisted": "Assisted",
     "mode_free_code": "Free Code",
