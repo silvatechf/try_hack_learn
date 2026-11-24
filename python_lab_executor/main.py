@@ -1,8 +1,9 @@
+import hmac
 import os
 from threading import BoundedSemaphore
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from sandbox_runner import run_in_sandbox
@@ -16,6 +17,23 @@ if not 1 <= MAX_CONCURRENT_EXECUTIONS <= 16:
     raise RuntimeError("PYTHON_LAB_MAX_CONCURRENT_EXECUTIONS must be between 1 and 16")
 
 EXECUTION_SLOTS = BoundedSemaphore(MAX_CONCURRENT_EXECUTIONS)
+EXECUTOR_TOKEN = os.getenv("PYTHON_LAB_EXECUTOR_TOKEN")
+
+
+def require_service_token(authorization: str | None = Header(default=None)):
+    if not EXECUTOR_TOKEN:
+        raise HTTPException(
+            status_code=503,
+            detail="Executor service authentication is not configured",
+        )
+
+    expected = f"Bearer {EXECUTOR_TOKEN}"
+    if authorization is None or not hmac.compare_digest(authorization, expected):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 class ExecutionTest(BaseModel):
@@ -29,7 +47,7 @@ class InternalExecutionRequest(BaseModel):
     tests: list[ExecutionTest] = Field(min_length=1, max_length=MAX_TEST_CASES)
 
 
-@app.post("/internal/python-lab/execute")
+@app.post("/internal/python-lab/execute", dependencies=[Depends(require_service_token)])
 def internal_execute(payload: InternalExecutionRequest):
     if not EXECUTION_SLOTS.acquire(blocking=False):
         raise HTTPException(
