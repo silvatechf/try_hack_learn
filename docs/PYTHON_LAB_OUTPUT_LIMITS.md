@@ -17,7 +17,7 @@ The output ceiling applies to the bytes collected from the Docker CLI stdout/std
 
 The same bounded collector enforces the existing execution timeout while draining both streams. On timeout or output overflow, the runner asks Docker to stop the named sandbox container and then terminates the local Docker CLI process if necessary.
 
-Cleanup is best-effort if the Docker daemon is unavailable or does not respond within the stop timeout. This behavior must be exercised against the actual local Docker daemon before being treated as verified.
+Cleanup is best-effort if the Docker daemon is unavailable or does not respond within the stop timeout.
 
 ## Focused tests
 
@@ -27,13 +27,13 @@ Cleanup is best-effort if the Docker daemon is unavailable or does not respond w
 - Detection of combined output above the configured limit.
 - Collector timeout reporting.
 
-These tests exercise the output collector; they do not prove Docker container cleanup, daemon behavior, or end-to-end API mapping.
+These tests exercise the output collector; they do not independently prove Docker container cleanup or daemon behavior.
 
-## Verification status
+## Local Docker verification
 
-**IMPLEMENTED; NOT YET VERIFIED ON THE LOCAL DOCKER RUNTIME.**
+**VERIFIED ON THE LOCAL DOCKER RUNTIME — 2026-11-24.**
 
-Required local checks:
+Commands executed from the repository root:
 
 ```powershell
 docker compose build python_lab_executor
@@ -41,7 +41,15 @@ docker compose run --rm python_lab_executor pytest -q test_request_validation.py
 docker compose up -d python_lab_executor python_lab
 ```
 
-Then submit a Python Lab solution that writes more than 64 KiB to stdout and confirm that the API returns a stable technical failure, the learner container is stopped/removed, and the normal PY-001 solution still returns the existing technical and pedagogical result.
+Observed results:
+
+- Executor image build completed successfully.
+- Focused test suite: `10 passed in 0.49s`.
+- Normal `PY-001` execution returned `EXECUTED`, with `evaluation.status = SUCCESS`, `passed_all = true`, all 4/4 cases passing, and pedagogical outcome `MASTERED`.
+- Overflow probe using `print('X' * 70000)` returned `OUTPUT_LIMIT_EXCEEDED`, with `max_output_bytes = 65536`.
+- Immediately after the overflow probe, `docker ps -a --filter "name=python_sandbox_" --format "{{.Names}} | {{.Status}}"` returned no matching containers.
+
+The runtime evidence confirms the expected API behavior and that no matching sandbox container remained listed after the overflow test. It does not prove cleanup under Docker daemon failure or every possible race condition.
 
 ## Remaining limitations
 
