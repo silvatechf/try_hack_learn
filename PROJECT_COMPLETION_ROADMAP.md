@@ -465,8 +465,20 @@ The validation result must describe exactly which checks ran. `VALIDATED` is not
 
 No implementation of learner accounts, multi-author support, roles, complex authorization, marketplace, payments, comments, chat, multi-tenant analytics, Kubernetes, event streaming, or speculative microservices is authorized by this product direction.
 
-## 11.6 Next engineering decision
+## 11.6 Mission execution consistency — implementation checkpoint
 
-Before changing mission execution state, document the concurrency model and select a minimal safe strategy for the current single-instance Compose runtime. The current Target API uses shared mutable global runtime state. Concurrent mission runs can overwrite each other's controls between baseline and observed probe campaigns. Any fix must preserve mission and SDR contracts and include a regression test for overlapping executions.
+The concurrency model and MVP containment decision are recorded in `docs/adr/ADR-001-mission-execution-consistency.md`.
 
-Do not claim this risk is resolved until the chosen implementation has passed tests and a real local runtime check.
+The Orchestrator implementation now:
+
+- serializes the complete deployment handler with a process-local asynchronous lock;
+- applies a 10-second timeout and checks HTTP status for Target API reset/control updates;
+- aborts before probe execution and SDR persistence on upstream timeout, HTTP failure, or transport failure;
+- includes regression tests for overlapping deployment sequences and all three upstream failure classes;
+- allows the SDR output directory to be configured with `SDR_DIR`, retaining the existing default.
+
+**Status: IMPLEMENTED IN SOURCE; LOCAL DOCKER RUNTIME NOT VERIFIED.** A focused Orchestrator CI workflow has been added, but no successful workflow run has yet been observed.
+
+The containment guarantee is limited to one Orchestrator process, one worker, and one replica. The Target API host port remains published pending confirmation that no supported local workflow depends on direct host access. Request-scoped mission state remains the preferred long-term design.
+
+Do not claim this risk is resolved until the focused tests and real local Docker sequential/concurrent mission checks pass.
