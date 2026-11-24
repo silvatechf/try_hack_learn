@@ -142,6 +142,9 @@ def test_concurrent_deployments_keep_mission_phases_serialized(tmp_path):
             return None
 
     class FakeAsyncClient:
+        def __init__(self, timeout=None):
+            self.timeout = timeout
+
         async def __aenter__(self):
             return self
 
