@@ -90,13 +90,7 @@ def test_target_api_http_failure_aborts_deployment(tmp_path):
     with patch("main.SDR_DIR", str(tmp_path)):
         with patch("main.httpx.AsyncClient.post") as mock_post:
             with patch("main.run_probe_campaign") as mock_run_probe:
-                mock_post.return_value.raise_for_status.side_effect = (
-                    httpx.HTTPStatusError(
-                        "upstream failure",
-                        request=request,
-                        response=response,
-                    )
-                )
+                mock_post.return_value = response
 
                 result = client.post(
                     "/api/v1/arena/deploy",
