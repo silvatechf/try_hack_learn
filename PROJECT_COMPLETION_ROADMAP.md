@@ -407,3 +407,79 @@ The project is finished when:
 6. no open V1.0 requirement remains.
 
 At that point, further work is explicitly V2 or maintenance—not unfinished V1.0 work.
+
+
+---
+
+# 11. Product-direction reconciliation — 2026-11-24
+
+**Authority:** This section reconciles the existing V1.0 closure plan with `docs/PRODUCT_DIRECTION.md`. It does not retroactively upgrade historical verification claims.
+
+## 11.1 Product identity
+
+The repository's current product identity is **Try Hack Learn**. Legacy SentinelForge identifiers in API titles, storage keys, package metadata, and internal names are technical debt. Do not perform a broad rename as part of this reconciliation; inventory compatibility impact first.
+
+The approved product direction is a single-author cybersecurity learning platform:
+- The project owner is the only author in the MVP.
+- Published tracks are available to learners without learner accounts.
+- No multi-author, identity, marketplace, payment, collaboration, or multi-tenant features are included.
+- Original or properly licensed learning content only.
+
+## 11.2 Release sequencing decision
+
+The existing V1.0 scope remains a stabilization and evidence-closure milestone for the current platform. The Track Engine and Creator Workflow are **post-V1.0 product evolution (provisionally V1.1)**, not silently added to the frozen V1.0 release.
+
+This sequencing avoids expanding a release whose existing functional, security, and runtime gates are not yet closed. It also preserves the current mission, SDR, Learning Map, and Python Lab baseline.
+
+V1.0 closure does not mean production or public multi-user readiness. The Docker-socket executor remains a trusted-local-demo constraint. Remote or untrusted code execution requires a separately designed and verified execution boundary.
+
+## 11.3 V1.0 closure — retained scope
+
+The following remain the V1.0 closure priorities:
+1. Reconcile historical verification claims with current branch evidence and the current runtime.
+2. Complete the current frontend-to-Python-Lab user flow and failure-path checks.
+3. Re-run regression for MISSION-001, MISSION-002, and MISSION-003 without changing their contracts.
+4. Verify SDR structure and persistence behavior.
+5. Strengthen sandbox isolation evidence using actual runtime/container configuration; existing smoke tests are not sufficient by themselves.
+6. Close service-boundary issues required for the documented trusted-local-demo deployment.
+7. Complete reproducible startup, verification runbook, CI evidence, and release documentation.
+
+A status in the historical table above is a recorded baseline claim, not proof that the current PR stack has revalidated it. Current branch/runtime evidence takes precedence.
+
+## 11.4 Post-V1.0 — Track Engine MVP
+
+After V1.0 closure, implement the smallest useful Track Engine:
+- Declarative track definitions in version-controlled YAML/JSON with Markdown learning content.
+- Track, module, learning-objective, prerequisite, and challenge contracts.
+- Reuse existing mission and Python Lab capabilities through explicit adapters; do not duplicate their execution engines.
+- Structural/content/reference validation.
+- Executable challenge validation only where a deterministic test contract exists.
+- Draft and immutable versioned published releases.
+- A read-only catalogue for published tracks.
+- Local learner progress without accounts, with browser-local limitations documented.
+- Validation reports that identify track revision, validator version, checks, timestamps, and results.
+
+The validation result must describe exactly which checks ran. `VALIDATED` is not a general security certification and must not imply that sandbox isolation is proven.
+
+## 11.5 Explicitly deferred
+
+No implementation of learner accounts, multi-author support, roles, complex authorization, marketplace, payments, comments, chat, multi-tenant analytics, Kubernetes, event streaming, or speculative microservices is authorized by this product direction.
+
+## 11.6 Mission execution consistency — implementation checkpoint
+
+The concurrency model and MVP containment decision are recorded in `docs/adr/ADR-001-mission-execution-consistency.md`.
+
+The Orchestrator implementation now:
+
+- serializes the complete deployment handler with a process-local asynchronous lock;
+- applies a 10-second timeout and checks HTTP status for Target API reset/control updates;
+- aborts before probe execution and SDR persistence on upstream timeout, HTTP failure, or transport failure;
+- includes regression tests for overlapping deployment sequences and all three upstream failure classes;
+- allows the SDR output directory to be configured with `SDR_DIR`, retaining the existing default;
+- uses nanosecond-resolution SDR identifiers to avoid same-second record overwrites.
+
+**Status: IMPLEMENTED IN SOURCE; LOCAL DOCKER RUNTIME NOT VERIFIED.** A focused Orchestrator CI workflow has been added, but no successful workflow run has yet been observed.
+
+The containment guarantee is limited to one Orchestrator process, one worker, and one replica. The Target API host port remains published pending confirmation that no supported local workflow depends on direct host access. Request-scoped mission state remains the preferred long-term design.
+
+Do not claim this risk is resolved until the focused tests and real local Docker sequential/concurrent mission checks pass.

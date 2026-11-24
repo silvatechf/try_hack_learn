@@ -1,0 +1,41 @@
+name: Orchestrator CI
+
+on:
+  pull_request:
+    paths:
+      - "orchestrator/**"
+      - ".github/workflows/orchestrator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orchestrator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run Orchestrator regression tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: orchestrator
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: orchestrator/requirements.txt
+
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip fastapi httpx pytest
+
+      - name: Run Orchestrator tests
+        env:
+          SDR_DIR: ${{ runner.temp }}/sdr_records
+        run: pytest -q test_main.py

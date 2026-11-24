@@ -1,12 +1,12 @@
 # Try Hack Learn
 
-**Interactive security engineering and Python learning laboratory.**
+**Create, validate, and study original cybersecurity learning tracks.**
 
-Try Hack Learn is a hands-on learning environment for exploring application security, defensive architecture, controlled adversarial scenarios, and Python programming. Learners configure defensive controls, run predefined security missions, inspect evidence-oriented results, and practice Python through guided exercises.
+Try Hack Learn is a single-author cybersecurity learning platform. The project owner creates original learning tracks, validates their content and executable challenges, and publishes versioned learning experiences for others to study. Existing security missions and the Python Lab provide the initial hands-on capabilities.
 
 > **Project status:** Development / release-readiness work in progress. This repository review is based on source inspection. It is not a production security assessment and does not establish that the application has been validated in a live runtime.
 
-## Product capabilities
+See [Product Direction](docs/PRODUCT_DIRECTION.md) for the approved product scope and [Project Completion Roadmap](PROJECT_COMPLETION_ROADMAP.md) for release sequencing. The MVP deliberately excludes learner accounts and multiple creators.\n\n## Product capabilities
 
 - **Security missions:** predefined scenarios for SQL injection, excessive personal-data exposure, and unsafe prompt/tool boundaries.
 - **Defensive architecture exercise:** select and combine controls, then compare baseline and observed probe results.
@@ -37,11 +37,37 @@ The executor communicates with the Docker daemon through the mounted Docker sock
 
 The Python Lab executor requires access to a Docker daemon and pulls/uses the `python:3.11-slim` execution image.
 
+## Configure local service authentication
+
+The Python Lab API and internal executor share a local service-to-service bearer token. Generate a unique token before starting Compose; keep `.env` local and never commit it.
+
+PowerShell (run from the repository root):
+
+```powershell
+$existing = if (Test-Path .env) { @(Get-Content .env) } else { @() }
+if ($existing | Where-Object { $_ -match '^PYTHON_LAB_EXECUTOR_TOKEN=\S+' }) {
+    throw "PYTHON_LAB_EXECUTOR_TOKEN is already configured; refusing to replace it."
+}
+$bytes = New-Object byte[] 32
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+try { $rng.GetBytes($bytes) } finally { $rng.Dispose() }
+$token = [Convert]::ToBase64String($bytes)
+$existing = @($existing | Where-Object { $_ -notmatch '^PYTHON_LAB_EXECUTOR_TOKEN=' })
+$existing += "PYTHON_LAB_EXECUTOR_TOKEN=$token"
+if (-not ($existing | Where-Object { $_ -match '^PYTHON_LAB_ALLOWED_ORIGINS=' })) {
+    $existing += "PYTHON_LAB_ALLOWED_ORIGINS=http://localhost:3001,http://127.0.0.1:3001"
+}
+Set-Content -Path .env -Value $existing -Encoding ascii
+Remove-Variable token, bytes, rng, existing
+```
+
+The token is not printed. See [Python Lab service authentication](docs/PYTHON_LAB_SERVICE_AUTH.md) for the trust boundary and rotation notes.
+
 ## Start locally
 
 From the repository root:
 
-```bash
+```powershell
 docker compose up -d --build
 docker compose ps
 ```
