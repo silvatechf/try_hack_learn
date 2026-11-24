@@ -18,6 +18,8 @@ if not 1 <= MAX_CONCURRENT_EXECUTIONS <= 16:
 
 EXECUTION_SLOTS = BoundedSemaphore(MAX_CONCURRENT_EXECUTIONS)
 EXECUTOR_TOKEN = os.getenv("PYTHON_LAB_EXECUTOR_TOKEN")
+if EXECUTOR_TOKEN is not None and len(EXECUTOR_TOKEN) < 32:
+    raise RuntimeError("PYTHON_LAB_EXECUTOR_TOKEN must contain at least 32 characters")
 
 
 def require_service_token(authorization: str | None = Header(default=None)):
