@@ -1,55 +1,94 @@
-# SentinelForge
+# Try Hack Learn
 
-Interactive Security Engineering Laboratory & Continuous Security Validation Platform.
+**Interactive security engineering and Python learning laboratory.**
 
-## 1. Prerequisites
+Try Hack Learn is a hands-on learning environment for exploring application security, defensive architecture, controlled adversarial scenarios, and Python programming. Learners configure defensive controls, run predefined security missions, inspect evidence-oriented results, and practice Python through guided exercises.
 
-* Docker Desktop with Docker Compose
+> **Project status:** Development / release-readiness work in progress. This repository review is based on source inspection. It is not a production security assessment and does not establish that the application has been validated in a live runtime.
 
-## 2. Startup
+## Product capabilities
 
-```powershell
+- **Security missions:** predefined scenarios for SQL injection, excessive personal-data exposure, and unsafe prompt/tool boundaries.
+- **Defensive architecture exercise:** select and combine controls, then compare baseline and observed probe results.
+- **Security Decision Record (SDR):** persist mission execution evidence and architectural rationale.
+- **Python Lab:** guided, assisted, and free-code exercises with test feedback and a separate pedagogical evaluation.
+- **English and Spanish interface:** English is the default language; Spanish is selectable.
+
+Some names and storage keys in the current implementation still use the legacy `SentinelForge` identifier. This is technical legacy, not the current product name.
+
+## Architecture
+
+The Docker Compose application currently defines five services:
+
+| Service | Responsibility | Host port |
+|---|---|---:|
+| `frontend` | React/Vite learning interface | 3001 |
+| `orchestrator` | Missions, controls, probes, and SDR workflow | 8000 |
+| `target_api` | Intentionally vulnerable target application for exercises | 8001 |
+| `python_lab` | Python Lab API and pedagogical evaluation | 8002 |
+| `python_lab_executor` | Internal execution adapter that starts isolated Docker containers | Not published |
+
+The executor communicates with the Docker daemon through the mounted Docker socket. This is a highly privileged host interface. Treat the current Compose setup as a **trusted local development/demo environment only**; do not expose it to untrusted users or deploy it to production as-is.
+
+## Prerequisites
+
+- Docker Desktop (or Docker Engine) with the Docker Compose plugin.
+- Git.
+
+The Python Lab executor requires access to a Docker daemon and pulls/uses the `python:3.11-slim` execution image.
+
+## Start locally
+
+From the repository root:
+
+```bash
 docker compose up -d --build
-
-```
-
-## 3. Verification
-
-```powershell
 docker compose ps
-
 ```
 
-Expected active services:
+Open:
 
-* `frontend`
-* `orchestrator`
-* `target_api`
-* `python_lab`
-* `python_lab_executor`
+- Frontend: http://localhost:3001
+- Orchestrator API: http://localhost:8000
+- Target API sandbox: http://localhost:8001
+- Python Lab API: http://localhost:8002
 
-## 4. Local URLs
+## Minimum exploration workflow
 
-* **Frontend:** `http://localhost:3001`
-* **Orchestrator API:** `http://localhost:8000`
-* **Target API Sandbox:** `http://localhost:8001`
-* **Python Lab API:** `http://localhost:8002`
+1. Open the frontend and inspect the Learning Map.
+2. Select a mission and review its threat context, learning objective, and constraints.
+3. Add defensive controls to the architecture stack.
+4. Run the mission and inspect the resulting debrief and SDR evidence.
+5. Open the Python Lab, select `PY-001`, complete the exercise, and inspect technical test results and pedagogical feedback.
 
-## 5. Minimum Validation Workflow
+## Useful local checks
 
-1. **Home / Learning Map:** Open `http://localhost:3001` to view the curriculum domains and missions.
-2. **Mission Execution:** Select a mission, place defensive controls into the architecture stack, and execute sandbox validation.
-3. **Python Lab:** Switch to the Python Lab via the navigation bar.
-4. **Code Execution:** Select exercise `PY-001`, edit or complete the code implementation, and run code.
-5. **Result:** Inspect test evaluation outcomes and execution results.
+```bash
+docker compose config
+docker compose ps
+```
 
-## 6. Executor Architecture Note
+These commands check Compose configuration and container state. They do **not** prove that mission execution, sandbox isolation, or the complete learning flow works correctly. End-to-end verification must be performed against the running application.
 
-* `python_lab_executor` is an internal backend service operating on port `8003`.
-* It does not need to be published to the host machine for normal application flow.
+## Security and deployment boundary
 
-## 7. Troubleshooting
+The current implementation contains security-sensitive development choices that are being tracked for release readiness:
 
-* **If the Python Lab execution fails or hangs:** Verify that the `python_lab_executor` container is running via `docker compose ps`.
-* **If the Home / Learning Map fails to load missions:** Verify that the `orchestrator` service is running and accessible at port `8000`.
+- The executor container mounts `/var/run/docker.sock`. Control of this socket can provide host-level control; it must not be exposed to untrusted workloads.
+- The Orchestrator and Python Lab configure permissive CORS.
+- The Python Lab and executor request paths require a documented and tested trust boundary, including authentication, input limits, abuse controls, and failure handling.
+- Sandbox flags such as `--network none`, `--read-only`, dropped Linux capabilities, and resource limits are useful controls, but do not by themselves establish a hardened multi-tenant sandbox.
+
+See [Release Readiness](docs/RELEASE_READINESS.md) for the source-inspection findings and acceptance criteria.
+
+## Project language
+
+The product documentation and default interface language are English. Spanish is the only alternative user-selectable language.
+
+## Contribution and verification principles
+
+- Preserve existing mission, SDR, probe, and frontend contracts unless a change is explicitly designed and validated.
+- Do not describe a feature as verified based only on source inspection or unit tests.
+- Record the exact commands and actual outputs used for local runtime verification.
+- Keep secrets out of source control and use environment-specific configuration for deployment.
 
